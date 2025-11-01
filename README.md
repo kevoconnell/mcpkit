@@ -14,7 +14,9 @@ Within the repo, run
 ```bash
 npm i && npm run build && npm link
 ```
-now you should be able to run a local instance of mcpkit
+now you should be able to run a local instance of mcpkit within your ci
+
+
 
 ## Quick Start
 
@@ -90,6 +92,20 @@ Show the current version of mcpkit.
 ### Flags
 - `--help`, `-h`: Show help
 - `--version`, `-v`: Show version
+
+## Testing generated MCP servers
+after running mcpkit create,
+cd into the created folder,
+run 
+```bash
+npm run i && npm run build
+```
+followed by 
+```bash
+npx @modelcontextprotocol/inspector node dist/index.js     
+```
+a screen like this should show
+![Hacker News MCP Example](HNMCP.png)
 
 ## Contributing
 

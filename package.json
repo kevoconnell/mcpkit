@@ -1,0 +1,46 @@
+{
+  "name": "mcpkit",
+  "version": "1.0.0",
+  "description": "Easy setup for MCPs with Browserbase and 1Password - run browser automation anywhere with just an API key",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "mcpkit": "dist/cli.js",
+    "mcpkit-server": "dist/mcp/server.js"
+  },
+  "scripts": {
+    "dev": "tsx watch src/cli.ts",
+    "dev:server": "tsx src/mcp/server.ts",
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "start:server": "node dist/mcp/server.js",
+    "generate": "tsx src/cli.ts",
+    "secrets:setup": "tsx src/secrets/cli.ts"
+  },
+  "keywords": [
+    "mcp",
+    "stagehand",
+    "browser-automation",
+    "ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@1password/sdk": "^0.4.0-beta.1",
+    "@browserbasehq/stagehand": "^3.0.1",
+    "@google/generative-ai": "^0.24.1",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@types/node": "^20.0.0",
+    "@types/prompts": "^2.4.9",
+    "boxen": "^8.0.1",
+    "chalk": "^5.6.2",
+    "dotenv": "^16.0.0",
+    "prompts": "^2.4.2",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}

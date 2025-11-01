@@ -1,0 +1,12 @@
+node_modules/
+dist/
+generated/
+generated-mcps/
+.env
+*.log
+.DS_Store
+*.tsbuildinfo
+
+# mcpkit session data
+.mcpkit/
+

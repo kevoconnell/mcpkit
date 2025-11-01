@@ -8,6 +8,14 @@
 
 Perfect for developers who want to quickly create MCP servers for any web application without manual coding.
 
+## Contributing
+Within the repo, run
+
+```bash
+npm i && npm run build && npm link
+```
+now you should be able to run a local instance of mcpkit
+
 ## Quick Start
 
 ### Installation

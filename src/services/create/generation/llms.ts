@@ -32,7 +32,7 @@ export async function generateMCPServerCode(
   );
 
   // Generate static template files
-  const packageJson = await generatePackageJson(serviceName);
+  const packageJson = generatePackageJson(serviceName);
   const envExample = generateEnvExample(domain);
   const readme = generateReadme(serviceName, domain, actions);
   const tsconfig = generateTsConfig();

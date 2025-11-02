@@ -184,6 +184,13 @@ export async function getPrintedTradeExample(): Promise<string> {
 }
 
 /**
+ * Read the substack example MCP server file
+ */
+export async function getSubstackExample(): Promise<string> {
+  return loadExampleFile("substack");
+}
+
+/**
  * Generate package.json
  */
 export function generatePackageJson(serviceName: string): string {
@@ -225,6 +232,7 @@ export async function generateMCPServerCodePrompt(
 ) {
   const hackernewsExample = await getExampleMCPServer();
   const printedTradeExample = await getPrintedTradeExample();
+  const substackExample = await getSubstackExample();
 
   return `Generate a complete TypeScript MCP server file for ${domain} using the following example code:
 
@@ -236,6 +244,11 @@ EXAMPLE 1 - HackerNews MCP Server:
 EXAMPLE 2 - Printed.Trade MCP Server:
   \`\`\`typescript
   ${printedTradeExample}
+  \`\`\`
+
+EXAMPLE 3 - Substack.com MCP Server:
+  \`\`\`typescript
+  ${substackExample}
   \`\`\`
 
 REQUIREMENTS:

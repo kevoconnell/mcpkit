@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { setupSecrets } from "./commands/secrets/index.js";
 import { createMCPServer } from "./commands/create/index.js";
 import { manageContexts } from "./commands/contexts/index.js";
 import { setupConfig, showConfig } from "./commands/config/index.js";
@@ -11,7 +10,6 @@ loadEnv();
 
 const COMMANDS = {
   config: "Set up global configuration (API keys)",
-  setup: "Set up 1Password service account and environment",
   create: "Create an MCP server by analyzing a website",
   contexts: "Manage saved browser contexts (list, delete, show)",
   help: "Show this help message",
@@ -20,14 +18,13 @@ const COMMANDS = {
 
 async function showHelp() {
   console.log(`
-mcpkit - Easy setup for MCPs with Browserbase and 1Password
+mcpkit - Easy setup for MCPs with Browserbase
 
 Usage:
   mcpkit [command] [options]
 
 Commands:
   config      ${COMMANDS.config}
-  setup       ${COMMANDS.setup}
   create      ${COMMANDS.create}
   contexts    ${COMMANDS.contexts}
   help        ${COMMANDS.help}
@@ -50,10 +47,6 @@ async function showVersion() {
   const packageJson = JSON.parse(packageJsonContent) as { version: string };
 
   console.log(`${packageJson.version}`);
-}
-
-async function runSetup() {
-  await setupSecrets();
 }
 
 async function runCreate(url?: string, skipAuth?: boolean) {
@@ -116,10 +109,6 @@ async function main() {
         } else {
           await setupConfig();
         }
-        break;
-
-      case "setup":
-        await runSetup();
         break;
 
       case "create":

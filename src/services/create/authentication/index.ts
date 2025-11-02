@@ -1,5 +1,5 @@
 import { Stagehand } from "@browserbasehq/stagehand";
-import { lookupCredentialsIn1Password } from "../../1password/index.js";
+
 import { StagehandPage } from "../schemas/index.js";
 
 import {
@@ -38,9 +38,6 @@ export async function authenticateToWebsite(
 
   logAuthenticationAnalysis(analysis, domain);
 
-  const credentials = await lookupCredentialsIn1Password(domain);
-  console.log("Credentials from 1Password:", credentials);
-
   // If there's a login button to click, click it first
   if (analysis.loginButton) {
     console.log(`🖱️  Clicking login button: "${analysis.loginButton}"`);
@@ -58,44 +55,7 @@ export async function authenticateToWebsite(
     }
   }
 
-  // Attempt automatic login if credentials are available
-  if (credentials && analysis.canAutofill) {
-    console.log(
-      "\n🔐 Attempting automatic login with 1Password credentials..."
-    );
-    try {
-      // Use Stagehand to fill in the login form
-      await stagehand.act(
-        `Type "${credentials.username}" into the username or email field`
-      );
-      await stagehand.act(
-        `Type "${credentials.password}" into the password field`
-      );
-      await stagehand.act("Click the login or sign in button");
-
-      // Wait for navigation/login to complete
-      await activePage.waitForLoadState("networkidle", 10_000).catch(() => {});
-
-      // Re-analyze to check if login succeeded
-      analysis = await analyzeAuthenticationState(stagehand, activePage);
-
-      if (!analysis.requiresAuth) {
-        console.log("✅ Automatic login successful!");
-        return;
-      } else {
-        console.log(
-          "⚠️  Automatic login may have failed, falling back to manual authentication"
-        );
-      }
-    } catch (error) {
-      console.log(
-        `⚠️  Automatic login failed: ${
-          error instanceof Error ? error.message : error
-        }`
-      );
-      console.log("Falling back to manual authentication...");
-    }
-  }
+  //todo: add automatic login functionality, need to think of a way to do this efficiently with 1password
 
   console.log("\n🌐 Opening browser session for authentication...");
   console.log(`🔗 Debug URL: ${getDebugUrl(stagehand)}`);

@@ -1,6 +1,6 @@
 # mcpkit
 
-> Easy setup for MCPs with Browserbase and 1Password. Run browser automation anywhere with just an API key.
+> Easy setup for MCPs with Browserbase. Run browser automation anywhere with just an API key.
 
 ## What is mcpkit?
 
@@ -29,9 +29,6 @@ npm install -g mcpkit
 ### Usage
 
 ```bash
-# First time setup - configure 1Password and environment
-mcpkit setup
-
 # Create an MCP server for any website
 mcpkit create https://linear.app
 mcpkit create https://notion.so
@@ -46,22 +43,8 @@ mcpkit version
 
 ### How it works
 
-#### 1. Initial Setup (One-time)
-```bash
-mcpkit setup
-```
-The above sets up 1password with mcpkit, so its easier to auth as needed (still a WIP)
-
 ## CLI Commands
 
-### `mcpkit setup`
-Run the interactive 1Password setup wizard to configure your environment.
-
-**What it does:**
-- Installs 1Password CLI if needed
-- Connects to your 1Password account
-- Creates a service account with vault access
-- Saves credentials to `.env`
 
 ### `mcpkit create <url>`
 Generate an MCP server for a website.

@@ -89,14 +89,15 @@ export async function fixBuildErrors(
   actions: DiscoveredAction[],
   outputDir: string
 ): Promise<string> {
-  const apiKey = process.env.modelApiKey;
-  const modelName = process.env.modelName;
-  if (!apiKey || !modelName) {
+  const apiKey =
+    process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY!;
+
+  if (!apiKey) {
     throw new Error("modelApiKey environment variable is required");
   }
   // todo: use the same underlying model as the one used in the Stagehand instance
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: modelName });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const prompt = await generateFixBuildErrorsPrompt(
     originalCode,

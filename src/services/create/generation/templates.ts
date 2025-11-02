@@ -83,7 +83,7 @@ export function generateReadme(
   When the server starts, it will output a live view URL that you can use to watch the browser automation in real-time:
   
   \`\`\`
-  🔗 Live view: https://app.browserbase.com/sessions/[session-id]
+  🔗 Live view: https://browserbase.com/sessions/[session-id]
   \`\`\`
   
   ### Development mode
@@ -149,14 +149,14 @@ export function generateTsConfig(): string {
 }
 
 /**
- * Read the example MCP server file
+ * Generic function to load an example MCP server file
  */
-export async function getExampleMCPServer(): Promise<string> {
+async function loadExampleFile(exampleName: string): Promise<string> {
   const fs = await import("fs/promises");
   const exampleFilePath = path.join(
     process.cwd(),
     "examples",
-    "hackernews",
+    exampleName,
     "src",
     "index.ts"
   );
@@ -164,9 +164,23 @@ export async function getExampleMCPServer(): Promise<string> {
   try {
     return await fs.readFile(exampleFilePath, "utf-8");
   } catch (error) {
-    console.warn("⚠️  Could not read example file");
-    return "// Example not available";
+    console.warn(`⚠️  Could not read ${exampleName} example file`);
+    return `// ${exampleName} example not available`;
   }
+}
+
+/**
+ * Read the hackernews example MCP server file
+ */
+export async function getExampleMCPServer(): Promise<string> {
+  return loadExampleFile("hackernews");
+}
+
+/**
+ * Read the printed_trade example MCP server file
+ */
+export async function getPrintedTradeExample(): Promise<string> {
+  return loadExampleFile("printed_trade");
 }
 
 /**
@@ -209,11 +223,19 @@ export async function generateMCPServerCodePrompt(
   serviceName: string,
   url: string
 ) {
-  const exampleServerCode = await getExampleMCPServer();
+  const hackernewsExample = await getExampleMCPServer();
+  const printedTradeExample = await getPrintedTradeExample();
 
   return `Generate a complete TypeScript MCP server file for ${domain} using the following example code:
+
+EXAMPLE 1 - HackerNews MCP Server:
   \`\`\`typescript
-  ${exampleServerCode}
+  ${hackernewsExample}
+  \`\`\`
+
+EXAMPLE 2 - Printed.Trade MCP Server:
+  \`\`\`typescript
+  ${printedTradeExample}
   \`\`\`
 
 REQUIREMENTS:
@@ -242,6 +264,26 @@ REQUIREMENTS:
    - Take screenshots on error for debugging
 5. Keep code clean, well-commented, and production-ready
 6. Import and use Zod (z) for schema validation in extraction calls
+
+CRITICAL - Zod Schema Rules for Gemini Compatibility:
+- NEVER use z.record() - it creates empty object schemas that Gemini rejects
+- NEVER use z.any() in schemas
+- NEVER create empty objects with z.object({})
+- For flexible/dynamic data, use z.string() and describe it as "JSON string" or define specific fields
+- All z.object() must have at least one property defined
+- Use .optional() for optional fields, but ensure at least one required field exists
+- Keep schemas SIMPLE and FLEXIBLE - complex nested arrays often fail
+- When extracting data, prefer flat schemas with optional fields over complex nested structures
+- Example CORRECT patterns:
+  * z.object({ summary: z.string(), data: z.string().optional() })
+  * z.object({ value: z.string() }).optional()
+  * z.object({ items: z.array(z.object({ name: z.string() })) }) - simple array
+- Example INCORRECT patterns (will cause errors):
+  * z.record(z.string(), z.any()) ❌
+  * z.object({}) ❌
+  * z.object({ field: z.any() }) ❌
+  * Complex nested arrays with many required fields ❌
+- If extraction needs to handle varying data, use a flat schema with many optional fields rather than nested structures
 
 ACTIONS TO IMPLEMENT:
 ${JSON.stringify(actions, null, 2)}
@@ -727,8 +769,7 @@ stagehand llms.txt
 
 - The extraction result should be returned directly as the 'result' variable
 
-EXAMPLE MCP SERVER (follow this structure exactly):
-${exampleServerCode}
+These examples demonstrate best practices for MCP server implementation. Use them as references for structure, error handling, and patterns.
 
 Generate ONLY the complete TypeScript code, no markdown formatting or explanations:`;
 }

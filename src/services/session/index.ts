@@ -1,23 +1,8 @@
-import { Browserbase } from "@browserbasehq/sdk";
 import { promises as fs } from "fs";
 import * as path from "path";
 import { homedir } from "os";
 import { loadEnv } from "../../config/env.js";
-
-loadEnv();
-
-const BROWSERBASE_API_KEY = process.env.BROWSERBASE_API_KEY;
-const BROWSERBASE_PROJECT_ID = process.env.BROWSERBASE_PROJECT_ID;
-
-if (!BROWSERBASE_API_KEY || !BROWSERBASE_PROJECT_ID) {
-  throw new Error(
-    "BROWSERBASE_API_KEY and BROWSERBASE_PROJECT_ID must be set in environment variables"
-  );
-}
-
-const browserbase = new Browserbase({
-  apiKey: BROWSERBASE_API_KEY,
-});
+import { getBrowserbaseInstance } from "../../initalizers/browserbase/index.js";
 
 const CONTEXTS_DIR = path.join(homedir(), ".mcpkit", "contexts");
 
@@ -42,9 +27,7 @@ export async function saveContextId(
 /**
  * Load a context ID for a domain
  */
-export async function loadContextId(
-  domain: string
-): Promise<string | null> {
+export async function loadContextId(domain: string): Promise<string | null> {
   try {
     const contextId = await fs.readFile(getContextFilePath(domain), "utf-8");
     return contextId.trim();
@@ -68,10 +51,11 @@ export async function deleteContextId(domain: string): Promise<void> {
  * Create a new Browserbase context for a domain
  */
 export async function createContext(domain: string): Promise<string> {
+  const browserbase = getBrowserbaseInstance();
+  const { BROWSERBASE_PROJECT_ID } = loadEnv();
   const context = await browserbase.contexts.create({
-    projectId: BROWSERBASE_PROJECT_ID!,
+    projectId: BROWSERBASE_PROJECT_ID,
   });
-
   console.log(`✅ Created new browser context for ${domain}: ${context.id}`);
   await saveContextId(domain, context.id);
 
@@ -85,7 +69,9 @@ export async function getOrCreateContext(domain: string): Promise<string> {
   const existingContextId = await loadContextId(domain);
 
   if (existingContextId) {
-    console.log(`♻️  Found existing context for ${domain}: ${existingContextId}`);
+    console.log(
+      `♻️  Found existing context for ${domain}: ${existingContextId}`
+    );
     return existingContextId;
   }
 

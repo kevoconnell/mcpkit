@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "instruction": "Log in",
+  "url": "https://www.notion.com/",
+  "variables": {},
+  "actions": [
+    {
+      "selector": "xpath=/html[1]/body[1]/div[1]/div[1]/div[1]/div[1]/div[1]/nav[1]/div[1]/div[3]/span[1]/a[1]",
+      "description": "Log in",
+      "method": "click",
+      "arguments": []
+    }
+  ],
+  "actionDescription": "Log in",
+  "message": "Action [click] performed successfully on selector: xpath=/html[1]/body[1]/div[1]/div[1]/div[1]/div[1]/div[1]/nav[1]/div[1]/div[3]/span[1]/a[1]"
+}

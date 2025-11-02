@@ -19,11 +19,7 @@ export async function createMCPServer(
   const urlObj = new URL(url);
   const domain = urlObj.hostname;
 
-  const stagehand = await getStagehandInstance(
-    domain,
-    process.env.GEMINI_API_KEY!,
-    "google/gemini-2.5-flash"
-  );
+  const stagehand = await getStagehandInstance(domain);
 
   // Skip authentication if requested
   if (!options?.skipAuth) {

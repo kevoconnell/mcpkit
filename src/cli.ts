@@ -2,14 +2,11 @@
 
 import { createMCPServer } from "./commands/create/index.js";
 import { manageContexts } from "./commands/contexts/index.js";
-import { setupConfig, showConfig } from "./commands/config/index.js";
+import { setupSecrets, showSecrets } from "./commands/secrets/index.js";
 import prompts from "prompts";
-import { loadEnv } from "./config/env.js";
-
-loadEnv();
 
 const COMMANDS = {
-  config: "Set up global configuration (API keys)",
+  secrets: "Set up API keys (Browserbase, Gemini)",
   create: "Create an MCP server by analyzing a website",
   contexts: "Manage saved browser contexts (list, delete, show)",
   help: "Show this help message",
@@ -24,7 +21,7 @@ Usage:
   mcpkit [command] [options]
 
 Commands:
-  config      ${COMMANDS.config}
+  secrets     ${COMMANDS.secrets}
   create      ${COMMANDS.create}
   contexts    ${COMMANDS.contexts}
   help        ${COMMANDS.help}
@@ -102,12 +99,12 @@ async function main() {
 
     // Handle commands
     switch (command) {
-      case "config":
-        const configSubcommand = args[1];
-        if (configSubcommand === "show") {
-          await showConfig();
+      case "secrets":
+        const secretsSubcommand = args[1];
+        if (secretsSubcommand === "show") {
+          await showSecrets();
         } else {
-          await setupConfig();
+          await setupSecrets();
         }
         break;
 

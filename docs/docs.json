@@ -8,6 +8,11 @@
     "dark": "#2563EB"
   },
   "favicon": "/favicon.svg",
+  "seo": {
+    "metatags": {
+      "canonical": "https://mcpkit.sh"
+    }
+  },
   "navigation": {
     "tabs": [
       {

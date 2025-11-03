@@ -30,6 +30,8 @@ import dotenv from "dotenv";
 import os from "os";
 import path from "path";
 import { existsSync } from "fs";
+import fs from "fs/promises";
+import https from "https";
 
 // Load environment variables from standard locations
 const GLOBAL_ENV_PATH = path.join(os.homedir(), ".mcpkit", ".env");
@@ -66,7 +68,6 @@ let stagehand: Stagehand;
  */
 async function getSavedContextId(domain: string): Promise<string | null> {
   try {
-    const fs = await import("fs/promises");
     const contextFilePath = path.join(
       os.homedir(),
       ".mcpkit",
@@ -84,7 +85,6 @@ async function getSavedContextId(domain: string): Promise<string | null> {
  * Create a new browser context
  */
 async function createNewContext(): Promise<string> {
-  const https = await import("https");
   const apiKey = process.env.BROWSERBASE_API_KEY!;
   const projectId = process.env.BROWSERBASE_PROJECT_ID!;
 

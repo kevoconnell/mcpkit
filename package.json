@@ -1,6 +1,6 @@
 {
   "name": "@kevinoconnell/mcpkit",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "publishConfig": {
     "access": "public"
   },

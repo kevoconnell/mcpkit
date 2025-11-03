@@ -40,7 +40,11 @@
           },
           {
             "group": "Advanced",
-            "pages": ["advanced/authentication", "advanced/claude-code", "development"]
+            "pages": [
+              "advanced/authentication",
+              "advanced/claude-code",
+              "development"
+            ]
           }
         ]
       }
@@ -64,7 +68,7 @@
       },
       {
         "label": "NPM",
-        "href": "https://www.npmjs.com/package/mcpkit",
+        "href": "https://www.npmjs.com/package/@kevinoconnell/mcpkit",
         "icon": "box"
       }
     ]

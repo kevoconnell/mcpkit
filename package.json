@@ -1,6 +1,9 @@
 {
-  "name": "mcpkit",
-  "version": "1.0.0",
+  "name": "@kevinoconnell/mcpkit",
+  "version": "1.0.1",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Easy setup for MCPs with Browserbase - run browser automation anywhere with just an API key",
   "type": "module",
   "main": "dist/index.js",

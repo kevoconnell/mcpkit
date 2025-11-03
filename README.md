@@ -99,7 +99,7 @@ You should see a screen like this:
 Alternatively, you can install into claude code with
 
 ```bash
-claude mcp add --transport stdio "your-mcp-name-here" -- node dist/index.js
+claude mcp add --transport stdio "your-server-name" -- node /absolute/path/to/dist/index.js
 ```
 
 

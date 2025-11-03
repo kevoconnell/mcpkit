@@ -25,7 +25,7 @@ mcpkit secrets
 
 ```bash
 # Create an MCP server for any website
-mcpkit create https://linear.app
+mcpkit create https://mcpkit.sh
 
 # Or use interactive mode
 mcpkit create
@@ -42,7 +42,6 @@ Generate an MCP server for a website with AI-powered discovery.
 
 **Examples:**
 ```bash
-mcpkit create https://linear.app
 mcpkit create https://news.ycombinator.com
 mcpkit create  # Interactive mode
 ```
@@ -59,8 +58,8 @@ Manage saved authentication contexts for websites.
 ```bash
 mcpkit contexts list
 mcpkit contexts show github.com
-mcpkit contexts delete linear.app
-mcpkit contexts create linear.app
+mcpkit contexts delete mcpkit.sh
+mcpkit contexts create mcpkit.sh
 ```
 
 ### `mcpkit secrets`

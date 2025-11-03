@@ -1,0 +1,401 @@
+---
+title: "mcpkit create"
+description: "Generate MCP servers for any website"
+icon: "wand-magic-sparkles"
+---
+
+The `create` command is the core of mcpkit. It analyzes a website and generates a complete MCP server with tools for interacting with that site.
+
+## Usage
+
+```bash
+mcpkit create <url> [options]
+```
+
+### Arguments
+
+<ParamField path="url" type="string" required>
+  The URL of the website to create an MCP server for. Must be a valid HTTP or HTTPS URL.
+</ParamField>
+
+### Options
+
+<ParamField path="--skip-auth" type="boolean" default="false">
+  Skip the authentication step even if the website requires login.
+</ParamField>
+
+## Examples
+
+### Basic Usage
+
+Create an MCP server for a public website:
+
+```bash
+mcpkit create https://news.ycombinator.com
+```
+
+### With Interactive URL Prompt
+
+If you don't provide a URL, mcpkit will prompt you:
+
+```bash
+mcpkit create
+# ? Enter the URL of the website to create an MCP for: https://mcpkit.sh
+```
+
+### Skip Authentication
+
+For testing or public websites:
+
+```bash
+mcpkit create https://example.com --skip-auth
+```
+
+## How It Works
+
+<Steps>
+  <Step title="URL Validation">
+    mcpkit validates the provided URL and extracts the domain name.
+
+    ```
+    🔨 MCP Server Generator
+    📍 Analyzing: https://mcpkit.sh
+    ```
+  </Step>
+
+  <Step title="Browser Session">
+    A headless browser session is launched via Browserbase to load the website.
+
+    <Info>
+      The browser runs in the cloud, so you don't need Chrome installed locally.
+    </Info>
+  </Step>
+
+  <Step title="Authentication (Optional)">
+    If the website requires authentication, you'll be prompted to log in:
+
+    ```
+    🔐 This site may require authentication.
+    Would you like to authenticate? (Y/n) y
+
+    🌐 Opening live browser session...
+    Complete authentication in your browser, then press Enter...
+    ```
+
+    Your authentication context (cookies, session data) will be saved for future use.
+  </Step>
+
+  <Step title="Action Discovery">
+    mcpkit uses AI to analyze the page and discover available actions:
+
+    ```
+    🔍 Discovering actions...
+    ✅ Found 8 actions:
+      - Create new issue
+      - Search issues
+      - Update issue status
+      - Add comment
+      - List projects
+      - ...
+    ```
+
+    The AI examines:
+    - Interactive elements (buttons, forms, links)
+    - Page structure and navigation
+    - Common workflows and patterns
+    - API endpoints (if available)
+  </Step>
+
+  <Step title="Schema Generation">
+    For each discovered action, mcpkit generates:
+    - Tool name and description
+    - Input parameters with types
+    - Zod validation schemas
+    - Implementation code
+
+    ```typescript
+    // Generated tool example
+    {
+      name: "create_issue",
+      description: "Create a new issue in Linear",
+      inputSchema: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          description: { type: "string" },
+          priority: {
+            type: "string",
+            enum: ["low", "medium", "high", "urgent"]
+          }
+        },
+        required: ["title"]
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="Server Generation">
+    A complete MCP server project is created:
+
+    ```
+    📁 mcp-stagehand-mcpkit.sh/
+    ├── src/
+    │   ├── index.ts           # Main MCP server
+    │   ├── tools/
+    │   │   ├── create_issue.ts
+    │   │   ├── search_issues.ts
+    │   │   └── ...
+    │   └── types.ts           # Shared types
+    ├── package.json
+    ├── tsconfig.json
+    └── README.md
+    ```
+
+    <Check>
+      Your MCP server is ready to use!
+    </Check>
+  </Step>
+</Steps>
+
+## Generated Server Structure
+
+The generated MCP server includes:
+
+### Main Server (`src/index.ts`)
+
+```typescript
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+const server = new Server({
+  name: "linear-mcp-server",
+  version: "1.0.0"
+}, {
+  capabilities: {
+    tools: {}
+  }
+});
+
+// Tool handlers
+server.setRequestHandler(ListToolsRequestSchema, async () => ({
+  tools: [
+    // Generated tools
+  ]
+}));
+
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  // Tool implementation
+});
+```
+
+### Tool Implementation
+
+Each tool is implemented with:
+
+```typescript
+// tools/create_issue.ts
+export async function createIssue(params: {
+  title: string;
+  description?: string;
+  priority?: "low" | "medium" | "high" | "urgent";
+}) {
+  const stagehand = await initStagehand();
+
+  // Navigate to create issue page
+  await stagehand.act("click new issue button");
+
+  // Fill in form
+  await stagehand.act(`type "${params.title}" in title field`);
+
+  if (params.description) {
+    await stagehand.act(`type "${params.description}" in description field`);
+  }
+
+  // Submit
+  await stagehand.act("click create button");
+
+  // Extract result
+  const result = await stagehand.extract("get created issue details");
+
+  return result;
+}
+```
+
+## Configuration
+
+Generated servers can be configured via environment variables:
+
+```bash
+# .env in generated server directory
+BROWSERBASE_API_KEY=your_api_key
+BROWSERBASE_PROJECT_ID=your_project_id
+LOG_LEVEL=info
+```
+
+## Testing the Generated Server
+
+After creation, test your server:
+
+```bash
+cd mcp-stagehand-<domain>/
+npm install
+npm run build
+npx @modelcontextprotocol/inspector node dist/index.js
+```
+
+## Advanced Options
+
+### Custom Model for Discovery
+
+The AI model used for action discovery can be configured in your `~/.mcpkit/secrets.json`:
+
+```json
+{
+  "llmProvider": "google",
+  "llmApiKey": "your-api-key",
+  "llmModel": "gemini-2.0-flash-exp"
+}
+```
+
+Supported providers:
+- `google` - Gemini models (recommended)
+- `openai` - GPT models
+- `anthropic` - Claude models
+- `azure` - Azure OpenAI
+
+### Debugging
+
+For verbose output during generation:
+
+```bash
+DEBUG=mcpkit:* mcpkit create https://example.com
+```
+
+## Common Workflows
+
+<Tabs>
+  <Tab title="Public Website">
+    For websites that don't require authentication:
+
+    ```bash
+    # Create server
+    mcpkit create https://news.ycombinator.com
+
+    # Test it
+    cd mcp-stagehand-news.ycombinator.com
+    npm install && npm run build
+    npx @modelcontextprotocol/inspector node dist/index.js
+    ```
+  </Tab>
+
+  <Tab title="Authenticated Website">
+    For websites requiring login:
+
+    ```bash
+    # Create server with auth
+    mcpkit create https://mcpkit.sh
+    # Follow prompts to authenticate
+
+    # Context is saved, regenerate without auth:
+    mcpkit create https://mcpkit.sh --skip-auth
+    ```
+  </Tab>
+
+  <Tab title="Internal Tool">
+    For company internal tools:
+
+    ```bash
+    # Make sure you can access the tool
+    mcpkit create https://internal.company.com
+
+    # You may need VPN or network access
+    ```
+
+    <Warning>
+      Ensure you have permission to automate interactions with internal tools.
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="No actions discovered" icon="magnifying-glass">
+    If mcpkit doesn't find any actions:
+
+    1. **Try a more specific URL** - Navigate to a specific page with clear actions
+       ```bash
+       # Instead of homepage
+       mcpkit create https://mcpkit.sh/issues
+       ```
+
+    2. **Authenticate first** - Some content only appears after login
+       ```bash
+       mcpkit create https://example.com
+       # Choose Yes when prompted to authenticate
+       ```
+
+    3. **Check the website is accessible** - Make sure it's not behind a firewall or paywall
+  </Accordion>
+
+  <Accordion title="Authentication fails" icon="lock">
+    If authentication doesn't work:
+
+    1. **Complete the full login flow** - Don't close the browser until you see success
+    2. **Check for 2FA** - Some sites require two-factor authentication
+    3. **Verify credentials** - Make sure you're using valid credentials
+    4. **Try manual context creation**:
+       ```bash
+       mcpkit contexts create example.com
+       ```
+  </Accordion>
+
+  <Accordion title="Generated server doesn't work" icon="bug">
+    If the generated tools don't work correctly:
+
+    1. **Check Browserbase API key** in the generated `.env` file
+    2. **Verify authentication** - Make sure saved context is still valid
+    3. **Test individual actions** in the MCP Inspector
+    4. **Regenerate with updated context**:
+       ```bash
+       mcpkit contexts delete example.com
+       mcpkit create https://example.com
+       ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Manage Contexts"
+    icon="database"
+    href="/commands/contexts"
+  >
+    Learn how to manage authentication contexts
+  </Card>
+
+  <Card
+    title="Configure Secrets"
+    icon="key"
+    href="/commands/secrets"
+  >
+    Update your API keys and settings
+  </Card>
+
+  <Card
+    title="View Examples"
+    icon="book"
+    href="/examples/overview"
+  >
+    See example generated servers
+  </Card>
+
+  <Card
+    title="Custom Tools"
+    icon="screwdriver-wrench"
+    href="/advanced/custom-tools"
+  >
+    Customize generated tools
+  </Card>
+</CardGroup>

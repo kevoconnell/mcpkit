@@ -1,0 +1,264 @@
+---
+title: "Installation"
+description: "Install and configure mcpkit on your system"
+---
+
+## System Requirements
+
+Before installing mcpkit, ensure your system meets these requirements:
+
+- **Node.js** 18.0.0 or later
+- **npm** 9.0.0 or later (comes with Node.js)
+- **Operating System**: macOS, Linux, or Windows
+
+<Tip>
+  Check your Node.js version with `node --version`
+</Tip>
+
+## Install with npm
+
+The easiest way to install mcpkit is via npm:
+
+```bash
+npm install -g mcpkit
+```
+
+<Check>
+  The `-g` flag installs mcpkit globally, making it available from anywhere in your terminal.
+</Check>
+
+### Verify Installation
+
+Confirm mcpkit is installed correctly:
+
+```bash
+mcpkit version
+```
+
+You should see the current version number printed to the console.
+
+## Alternative Installation Methods
+
+<Tabs>
+  <Tab title="pnpm">
+    ```bash
+    pnpm add -g mcpkit
+    ```
+  </Tab>
+
+  <Tab title="yarn">
+    ```bash
+    yarn global add mcpkit
+    ```
+  </Tab>
+
+  <Tab title="From Source">
+    Clone and build from the GitHub repository:
+
+    ```bash
+    git clone https://github.com/kevinoconnell/mcpkit.git
+    cd mcpkit
+    npm install
+    npm run build
+    npm link
+    ```
+
+    <Info>
+      Building from source is useful for development or if you want to use the latest unreleased features.
+    </Info>
+  </Tab>
+</Tabs>
+
+## Initial Configuration
+
+After installing mcpkit, you need to configure your API keys.
+
+### Get Your API Keys
+
+You'll need:
+
+1. **Browserbase API Key**
+   - Sign up at [browserbase.com](https://www.browserbase.com)
+   - Navigate to your dashboard
+   - Copy your API key from the settings
+
+2. **LLM API Key** (choose one):
+   - **Google Gemini** (recommended): Get an API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+   - **OpenAI**: Get an API key from [OpenAI Platform](https://platform.openai.com)
+   - **Anthropic**: Get an API key from [Anthropic Console](https://console.anthropic.com)
+
+### Configure Secrets
+
+Run the setup wizard:
+
+```bash
+mcpkit secrets
+```
+
+You'll be prompted to enter your credentials:
+
+```
+? Enter your Browserbase API key: bb_xxxxxxxxxxxxxxxx
+? Select your LLM provider: Google Gemini
+? Enter your Gemini API key: AIxxxxxxxxxxxxxxxxx
+```
+
+<Info>
+  Your credentials are stored locally in `~/.mcpkit/secrets.json` and are never shared.
+</Info>
+
+### Verify Configuration
+
+Check that your secrets are configured correctly:
+
+```bash
+mcpkit secrets show
+```
+
+This will display your configured provider (without showing the full API keys).
+
+## Updating mcpkit
+
+To update to the latest version:
+
+```bash
+npm update -g mcpkit
+```
+
+Or reinstall:
+
+```bash
+npm install -g mcpkit@latest
+```
+
+<Tip>
+  Check for updates regularly to get the latest features and bug fixes.
+</Tip>
+
+## Uninstalling
+
+To remove mcpkit from your system:
+
+```bash
+npm uninstall -g mcpkit
+```
+
+Your configuration files in `~/.mcpkit/` will remain. To completely remove all mcpkit data:
+
+<Tabs>
+  <Tab title="macOS/Linux">
+    ```bash
+    npm uninstall -g mcpkit
+    rm -rf ~/.mcpkit
+    ```
+  </Tab>
+
+  <Tab title="Windows">
+    ```powershell
+    npm uninstall -g mcpkit
+    Remove-Item -Recurse -Force "$env:USERPROFILE\.mcpkit"
+    ```
+  </Tab>
+</Tabs>
+
+## Troubleshooting Installation
+
+<AccordionGroup>
+  <Accordion title="Permission Denied Error" icon="lock">
+    If you encounter permission errors on macOS/Linux, you have two options:
+
+    **Option 1: Use a Node version manager (recommended)**
+    ```bash
+    # Install nvm
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+    # Install Node.js
+    nvm install 18
+    nvm use 18
+
+    # Now install mcpkit
+    npm install -g mcpkit
+    ```
+
+    **Option 2: Use sudo (not recommended)**
+    ```bash
+    sudo npm install -g mcpkit
+    ```
+
+    <Warning>
+      Using sudo with npm can cause permission issues. We recommend using a Node version manager instead.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Command Not Found" icon="terminal">
+    If `mcpkit` command is not found after installation:
+
+    1. **Check npm global bin path:**
+       ```bash
+       npm config get prefix
+       ```
+
+    2. **Add npm bin to PATH:**
+
+       macOS/Linux (add to `~/.bashrc` or `~/.zshrc`):
+       ```bash
+       export PATH="$(npm config get prefix)/bin:$PATH"
+       ```
+
+       Windows: Add the npm global bin path to your system PATH environment variable.
+
+    3. **Restart your terminal** and try again.
+  </Accordion>
+
+  <Accordion title="Node.js Version Too Old" icon="triangle-exclamation">
+    mcpkit requires Node.js 18 or later. Update Node.js:
+
+    **Using nvm (recommended):**
+    ```bash
+    nvm install 18
+    nvm use 18
+    ```
+
+    **Or download from:**
+    [nodejs.org](https://nodejs.org)
+  </Accordion>
+
+  <Accordion title="Installation Hangs or Fails" icon="spinner">
+    If installation hangs or fails:
+
+    1. **Clear npm cache:**
+       ```bash
+       npm cache clean --force
+       ```
+
+    2. **Use a different registry:**
+       ```bash
+       npm install -g mcpkit --registry=https://registry.npmjs.org/
+       ```
+
+    3. **Try with verbose logging:**
+       ```bash
+       npm install -g mcpkit --verbose
+       ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Quickstart Guide"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Create your first MCP server in 5 minutes
+  </Card>
+
+  <Card
+    title="CLI Commands"
+    icon="terminal"
+    href="/commands/create"
+  >
+    Learn about all available commands
+  </Card>
+</CardGroup>

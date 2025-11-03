@@ -1,0 +1,347 @@
+---
+title: "Examples Overview"
+description: "Real-world examples of MCP servers generated with mcpkit"
+icon: "book"
+---
+
+This section contains examples of MCP servers generated with mcpkit for different types of websites and use cases.
+
+## Example Categories
+
+<CardGroup cols={2}>
+
+<Card title="Content Platforms" icon="newspaper" href="/examples/hackernews">
+  Hacker News - News aggregation and discussions
+</Card>
+
+{" "}
+
+<Card title="Coming Soon: Social Media" icon="users">
+  Reddit, Twitter/X - Social platforms
+</Card>
+
+  <Card
+    title="Coming Soon: E-commerce"
+    icon="shopping-cart"
+  >
+    Shopping sites and marketplaces
+  </Card>
+</CardGroup>
+
+## What You'll Learn
+
+Each example includes:
+
+- **Setup instructions** - How to generate the MCP server
+- **Authentication guide** - Handling login if required
+- **Available tools** - What the AI can do with the site
+- **Usage examples** - Real prompts and expected results
+- **Customization tips** - How to extend the generated server
+
+## Quick Examples
+
+### 1. Hacker News (No Auth Required)
+
+Generate an MCP server for browsing and searching Hacker News:
+
+```bash
+mcpkit create https://news.ycombinator.com
+```
+
+**What you can do:**
+
+- Search for articles about specific topics
+- Get top stories
+- Read article comments
+- Find trending discussions
+
+**Example usage:**
+
+```
+User: Search Hacker News for articles about AI safety
+AI: [Uses search_articles tool with query "AI safety"]
+```
+
+### 2. Linear (Authentication Required)
+
+Generate an MCP server for Linear project management:
+
+```bash
+mcpkit create https://mcpkit.sh
+```
+
+**What you can do:**
+
+- Create and update issues
+- Search issues and projects
+- Assign tasks to team members
+- Update issue statuses
+
+**Example usage:**
+
+```
+User: Create a new high-priority bug for the login page
+AI: [Uses create_issue tool with title, description, and priority]
+```
+
+### 3. GitHub (Public + Private)
+
+Generate an MCP server for GitHub:
+
+```bash
+mcpkit create https://github.com
+```
+
+**What you can do:**
+
+- Search repositories
+- View issues and pull requests
+- Read file contents
+- Check commit history
+
+**Example usage:**
+
+```
+User: Find React repositories with over 10k stars
+AI: [Uses search_repositories tool with filters]
+```
+
+## Example Workflows
+
+### Research & Monitoring
+
+Use multiple MCP servers together to gather information:
+
+```bash
+# Set up servers for different sources
+mcpkit create https://news.ycombinator.com
+mcpkit create https://github.com
+mcpkit create https://reddit.com
+
+# Then ask Claude to:
+# "Search HN, GitHub, and Reddit for discussions about NextJS 14"
+```
+
+### Project Management Automation
+
+Automate your workflow across tools:
+
+```bash
+# Set up Linear and GitHub
+mcpkit contexts create mcpkit.sh
+mcpkit contexts create github.com
+
+mcpkit create https://mcpkit.sh --skip-auth
+mcpkit create https://github.com --skip-auth
+
+# Then ask Claude to:
+# "Create a Linear issue for each open GitHub issue with the 'bug' label"
+```
+
+### Content Curation
+
+Gather and organize content from multiple sources:
+
+```bash
+mcpkit create https://news.ycombinator.com
+mcpkit create https://medium.com
+mcpkit create https://dev.to
+
+# Then ask Claude to:
+# "Find the top 5 articles about React Hooks from HN, Medium, and DEV"
+```
+
+## Featured Examples
+
+<AccordionGroup>
+  <Accordion title="Linear - Project Management" icon="clipboard-check">
+    **Type:** Authenticated, SaaS
+
+    **Use Case:** Issue tracking, sprint planning, team collaboration
+
+    **Key Features:**
+    - Create and update issues
+    - Manage sprints and projects
+    - Search and filter issues
+    - Team member assignment
+
+    **Authentication:** Required (OAuth or email/password)
+
+    [View Full Example →](/examples/linear)
+
+  </Accordion>
+
+  <Accordion title="Hacker News - News Aggregator" icon="newspaper">
+    **Type:** Public, No Auth
+
+    **Use Case:** News discovery, trend monitoring, research
+
+    **Key Features:**
+    - Search articles by keyword
+    - Get top stories
+    - Read comments and discussions
+    - Filter by date and score
+
+    **Authentication:** Not required
+
+    [View Full Example →](/examples/hackernews)
+
+  </Accordion>
+
+  <Accordion title="Internal Wiki/Confluence" icon="building">
+    **Type:** Enterprise, Authenticated
+
+    **Use Case:** Knowledge base search, documentation
+
+    **Key Features:**
+    - Search documentation
+    - Read page contents
+    - Navigate page hierarchy
+    - Extract structured data
+
+    **Authentication:** Required (SSO, credentials)
+
+    **Note:** For internal tools, ensure you have authorization to automate access.
+
+  </Accordion>
+
+  <Accordion title="E-commerce Site" icon="shopping-cart">
+    **Type:** Public/Authenticated
+
+    **Use Case:** Product research, price monitoring, inventory checking
+
+    **Key Features:**
+    - Search products
+    - Get product details
+    - Check availability
+    - Compare prices
+
+    **Authentication:** Optional (for account features)
+
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices from Examples
+
+### 1. Start Simple
+
+Begin with public websites that don't require authentication:
+
+```bash
+# Good first examples
+mcpkit create https://news.ycombinator.com
+mcpkit create https://producthunt.com
+mcpkit create https://reddit.com
+```
+
+### 2. Save Authentication Contexts
+
+For sites you use frequently, save contexts:
+
+```bash
+# Authenticate once
+mcpkit create https://mcpkit.sh
+
+# Reuse later
+mcpkit create https://mcpkit.sh --skip-auth
+```
+
+### 3. Test Individual Tools
+
+Use the MCP Inspector to test tools before using in production:
+
+```bash
+cd mcp-stagehand-example.com
+npx @modelcontextprotocol/inspector node dist/index.js
+```
+
+### 4. Combine Multiple Servers
+
+Use multiple MCP servers together for powerful workflows:
+
+- Research: HN + Reddit + Twitter
+- Development: GitHub + Linear + Stack Overflow
+- Content: Medium + Dev.to + Hashnode
+
+### 5. Customize Generated Code
+
+The generated servers are fully editable. Customize them for your needs:
+
+```typescript
+// Add error handling
+// Improve extraction schemas
+// Add rate limiting
+// Cache frequently accessed data
+```
+
+## Tips for Success
+
+<Card title="Pro Tips" icon="lightbulb">
+  Learn from successful mcpkit users:
+</Card>
+
+1. **Be specific with URLs** - Use the exact page where actions happen
+
+   ```bash
+   # Instead of homepage
+   mcpkit create https://mcpkit.sh/team/issues
+   ```
+
+2. **Complete authentication fully** - Including 2FA before continuing
+
+3. **Test in Inspector first** - Validate tools before production use
+
+4. **Handle rate limits** - Add delays between rapid requests
+
+5. **Keep contexts fresh** - Refresh authentication periodically
+
+## Need Help?
+
+Each example includes troubleshooting tips. If you run into issues:
+
+<CardGroup cols={2}>
+  <Card
+    title="Join Discord"
+    icon="discord"
+    href="https://discord.gg/ASQJAxzM"
+  >
+    Ask the community for help
+  </Card>
+
+  <Card
+    title="GitHub Discussions"
+    icon="github"
+    href="https://github.com/kevinoconnell/mcpkit/discussions"
+  >
+    Share your examples and get feedback
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+
+<Card title="Hacker News Example" icon="newspaper" href="/examples/hackernews">
+  Build a Hacker News MCP
+</Card>
+
+<Card title="Substack Example" icon="envelope" href="/examples/substack">
+  Build a Substack MCP
+</Card>
+
+<Card
+  title="Custom Tools"
+  icon="screwdriver-wrench"
+  href="/advanced/custom-tools"
+>
+  Learn to customize generated servers
+</Card>
+
+  <Card
+    title="Authentication"
+    icon="lock"
+    href="/advanced/authentication"
+  >
+    Deep dive into auth handling
+  </Card>
+</CardGroup>

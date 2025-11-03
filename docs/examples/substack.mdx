@@ -1,0 +1,530 @@
+---
+title: "Substack Example"
+description: "Build an MCP server for Substack newsletter platforms"
+icon: "envelope"
+---
+
+This example shows how to create an MCP server for [Substack](https://substack.com), a popular newsletter and publishing platform. This demonstrates working with content platforms and managing subscriptions.
+
+## What You'll Build
+
+An MCP server that enables AI assistants to:
+- Browse and search Substack publications
+- Read newsletter posts and articles
+- Navigate author profiles
+- Discover trending publications
+- Search content across Substack
+
+## Generate the Server
+
+Create the MCP server for Substack:
+
+```bash
+mcpkit create https://substack.com
+```
+
+<Info>
+  For a specific Substack publication, you can use the publication's URL instead (e.g., `https://example.substack.com`)
+</Info>
+
+<Steps>
+  <Step title="URL Analysis">
+    mcpkit analyzes Substack and discovers browsing capabilities.
+
+    ```
+    🔨 MCP Server Generator
+    📍 Analyzing: https://substack.com
+    🚀 Starting browser session...
+    ```
+  </Step>
+
+  <Step title="Action Discovery">
+    The AI discovers actions for browsing and reading content:
+
+    ```
+    🔍 Discovering actions...
+    ✅ Found 8 actions:
+      - search_publications
+      - view_publication
+      - read_post
+      - view_author_profile
+      - browse_categories
+      - get_trending
+      - search_posts
+      - view_post_comments
+    ```
+  </Step>
+
+  <Step title="Server Generation">
+    Your MCP server is generated:
+
+    ```
+    📁 mcp-stagehand-substack.com/
+    ├── src/
+    │   └── index.ts
+    ├── package.json
+    └── tsconfig.json
+    ```
+  </Step>
+</Steps>
+
+## Available Tools
+
+The generated server typically includes:
+
+### Content Discovery
+
+<AccordionGroup>
+  <Accordion title="search_publications" icon="magnifying-glass">
+    Search for Substack publications by topic or name.
+
+    **Parameters:**
+    <ParamField path="query" type="string" required>
+      Search query (e.g., "tech", "politics", "cooking")
+    </ParamField>
+
+    **Example usage:**
+    ```
+    User: Find Substack newsletters about AI and machine learning
+    AI: [Uses search_publications with query "AI machine learning"]
+    ```
+
+    **Returns:** List of publications with titles, descriptions, and URLs
+  </Accordion>
+
+  <Accordion title="browse_categories" icon="grid">
+    Browse Substack publications by category.
+
+    **Parameters:**
+    <ParamField path="category" type="string" required>
+      Category name (e.g., "Technology", "Culture", "Politics")
+    </ParamField>
+
+    **Example:**
+    ```typescript
+    {
+      "category": "Technology"
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="get_trending" icon="fire">
+    Get currently trending publications and posts on Substack.
+
+    **Parameters:** None required
+
+    **Example usage:**
+    ```
+    User: What are the trending newsletters on Substack right now?
+    AI: [Uses get_trending to fetch current trends]
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Reading Content
+
+<AccordionGroup>
+  <Accordion title="view_publication" icon="book">
+    View details and recent posts from a specific publication.
+
+    **Parameters:**
+    <ParamField path="publicationUrl" type="string" required>
+      URL of the Substack publication
+    </ParamField>
+
+    **Example:**
+    ```typescript
+    {
+      "publicationUrl": "https://stratechery.com"
+    }
+    ```
+
+    **Returns:** Publication details, recent posts, subscriber count
+  </Accordion>
+
+  <Accordion title="read_post" icon="file-lines">
+    Read the full content of a specific post.
+
+    **Parameters:**
+    <ParamField path="postUrl" type="string" required>
+      URL of the post to read
+    </ParamField>
+
+    **Example usage:**
+    ```
+    User: Read the latest post from Platformer
+    AI: [Uses view_publication to get latest post URL, then read_post]
+    ```
+
+    **Returns:** Post title, author, date, full content, and images
+  </Accordion>
+
+  <Accordion title="view_post_comments" icon="comments">
+    View comments and discussions on a post.
+
+    **Parameters:**
+    <ParamField path="postUrl" type="string" required>
+      URL of the post
+    </ParamField>
+
+    **Returns:** Comments with author names and timestamps
+  </Accordion>
+
+  <Accordion title="search_posts" icon="search">
+    Search for specific posts across Substack.
+
+    **Parameters:**
+    <ParamField path="query" type="string" required>
+      Search query
+    </ParamField>
+
+    <ParamField path="author" type="string">
+      Filter by specific author (optional)
+    </ParamField>
+
+    **Example:**
+    ```typescript
+    {
+      "query": "GPT-4",
+      "author": "Casey Newton"
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="view_author_profile" icon="user">
+    View an author's profile and their publications.
+
+    **Parameters:**
+    <ParamField path="authorName" type="string" required>
+      Author's name or profile URL
+    </ParamField>
+
+    **Returns:** Bio, publications, social links
+  </Accordion>
+</AccordionGroup>
+
+## Setup and Testing
+
+### Build the Server
+
+```bash
+cd mcp-stagehand-substack.com
+npm install
+npm run build
+```
+
+### Test with MCP Inspector
+
+```bash
+npx @modelcontextprotocol/inspector node dist/index.js
+```
+
+### Add to Claude Code
+
+```bash
+claude mcp add --transport stdio "substack" -- node /absolute/path/to/dist/index.js
+```
+
+## Example Use Cases
+
+<Tabs>
+  <Tab title="Content Curation">
+    **Prompt:** "Find the top 5 tech newsletters on Substack and summarize their latest posts"
+
+    **What happens:**
+    1. Uses `search_publications` with query "technology"
+    2. For top 5 results, uses `view_publication`
+    3. For each publication, uses `read_post` for latest post
+    4. Summarizes findings
+  </Tab>
+
+  <Tab title="Research">
+    **Prompt:** "Search Substack for articles about climate change from the past month"
+
+    **What happens:**
+    1. Uses `search_posts` with query "climate change"
+    2. Filters results by date
+    3. Reads relevant posts
+    4. Provides summary with sources
+  </Tab>
+
+  <Tab title="Author Discovery">
+    **Prompt:** "Show me what Casey Newton has been writing about lately"
+
+    **What happens:**
+    1. Uses `view_author_profile` for "Casey Newton"
+    2. Gets their publications
+    3. Uses `view_publication` to see recent posts
+    4. Summarizes recent topics
+  </Tab>
+
+  <Tab title="Trend Analysis">
+    **Prompt:** "What topics are trending on Substack this week?"
+
+    **What happens:**
+    1. Uses `get_trending` to see popular posts
+    2. Analyzes titles and topics
+    3. Groups by theme
+    4. Reports trending topics with examples
+  </Tab>
+</Tabs>
+
+## Authentication (Optional)
+
+For full access including subscriber-only content:
+
+```bash
+# Authenticate to access premium content
+mcpkit contexts create substack.com
+```
+
+**Benefits of authentication:**
+- Read subscriber-only posts
+- Access full comment threads
+- View analytics (for your publications)
+- Manage your subscriptions
+
+## Customization Ideas
+
+### Add Newsletter Digest
+
+```typescript
+{
+  name: "create_weekly_digest",
+  description: "Create a weekly digest from favorite publications",
+  inputSchema: {
+    type: "object",
+    properties: {
+      publications: {
+        type: "array",
+        items: { type: "string" },
+        description: "List of publication URLs"
+      }
+    }
+  }
+}
+```
+
+### Track Specific Topics
+
+```typescript
+{
+  name: "track_topic",
+  description: "Monitor Substack for posts about a specific topic",
+  inputSchema: {
+    type: "object",
+    properties: {
+      topic: { type: "string" },
+      frequency: {
+        type: "string",
+        enum: ["daily", "weekly"]
+      }
+    }
+  }
+}
+```
+
+### Export to Markdown
+
+```typescript
+// Add to read_post implementation
+const markdown = `# ${post.title}
+
+By ${post.author} on ${post.date}
+
+${post.content}
+
+---
+Source: ${post.url}
+`;
+
+// Save or return markdown
+await fs.writeFile(`posts/${post.slug}.md`, markdown);
+```
+
+## Common Workflows
+
+### Newsletter Aggregation
+
+Combine multiple newsletters into a single feed:
+
+```
+"Create a summary of this week's posts from my favorite tech newsletters:
+Stratechery, Platformer, and The Generalist"
+```
+
+### Content Research
+
+Research a topic across multiple publications:
+
+```
+"Search all Substack posts about Web3 from the past 3 months and
+identify the main themes and controversies"
+```
+
+### Author Tracking
+
+Follow specific authors across their publications:
+
+```
+"Track all posts from Ben Thompson and create a monthly summary
+of his analysis on Big Tech companies"
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Paywall Content" icon="lock">
+    Some content is subscriber-only. To access:
+
+    1. **Authenticate:**
+       ```bash
+       mcpkit contexts create substack.com
+       ```
+
+    2. **Subscribe** to publications you want to read
+
+    3. **Regenerate** the server with authentication
+  </Accordion>
+
+  <Accordion title="Search Not Finding Posts" icon="search">
+    If search returns limited results:
+
+    1. **Use broader queries** - Try general terms first
+    2. **Search specific publications** - Use `view_publication` then search within
+    3. **Try author names** - Search by author for better targeting
+  </Accordion>
+
+  <Accordion title="Slow Loading" icon="hourglass">
+    Substack pages can be content-heavy:
+
+    1. **Be patient** - Allow time for page loads
+    2. **Use specific URLs** - Direct links are faster than searching
+    3. **Cache results** - Store frequently accessed content
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<Card title="Recommendations" icon="star">
+  Tips for effective Substack automation:
+</Card>
+
+1. **Respect Rate Limits** - Don't make rapid-fire requests
+2. **Cache Content** - Store posts you've already read
+3. **Use Specific URLs** - Direct links are more reliable than searches
+4. **Attribute Sources** - Always credit authors and link to originals
+5. **Subscribe to Support** - If you regularly read a publication, subscribe
+
+## Advanced Features
+
+### Content Analysis
+
+```typescript
+case "analyze_publication_style": {
+  // Read multiple posts
+  const posts = await getRecentPosts(publicationUrl);
+
+  // Extract text
+  const content = posts.map(p => p.content).join("\n\n");
+
+  // Analyze with AI
+  const analysis = await analyzeWritingStyle(content);
+
+  return {
+    content: [{
+      type: "text",
+      text: JSON.stringify(analysis, null, 2)
+    }]
+  };
+}
+```
+
+### Recommendation Engine
+
+```typescript
+case "get_recommendations": {
+  const { interests } = args as { interests: string[] };
+
+  // Search for publications matching interests
+  const results = await Promise.all(
+    interests.map(interest =>
+      searchPublications(interest)
+    )
+  );
+
+  // Rank and dedupe
+  const recommendations = rankPublications(results.flat());
+
+  return {
+    content: [{
+      type: "text",
+      text: JSON.stringify(recommendations, null, 2)
+    }]
+  };
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Hacker News Example"
+    icon="newspaper"
+    href="/examples/hackernews"
+  >
+    Build a news aggregation MCP
+  </Card>
+
+  <Card
+    title="Custom Tools"
+    icon="screwdriver-wrench"
+    href="/advanced/custom-tools"
+  >
+    Extend your Substack server
+  </Card>
+
+  <Card
+    title="All Examples"
+    icon="book"
+    href="/examples/overview"
+  >
+    Browse more examples
+  </Card>
+
+  <Card
+    title="Authentication"
+    icon="lock"
+    href="/advanced/authentication"
+  >
+    Set up authenticated access
+  </Card>
+</CardGroup>
+
+## Real-World Applications
+
+<AccordionGroup>
+  <Accordion title="Personal News Digest" icon="newspaper">
+    Create a daily digest from your favorite newsletters:
+    - Aggregate posts from multiple publications
+    - Summarize key points
+    - Filter by topics of interest
+    - Deliver via email or Slack
+  </Accordion>
+
+  <Accordion title="Content Research Tool" icon="magnifying-glass">
+    Research topics across Substack:
+    - Search for specific themes
+    - Track emerging trends
+    - Identify key voices
+    - Export findings to notes
+  </Accordion>
+
+  <Accordion title="Writing Assistant" icon="pen">
+    Analyze successful Substack content:
+    - Study popular writers' styles
+    - Identify trending topics
+    - Research similar publications
+    - Generate content ideas
+  </Accordion>
+</AccordionGroup>

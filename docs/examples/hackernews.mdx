@@ -1,0 +1,448 @@
+---
+title: "Hacker News Example"
+description: "Build an MCP server for Hacker News using mcpkit"
+icon: "newspaper"
+---
+
+This example shows how to create an MCP server for [Hacker News](https://news.ycombinator.com) - a popular tech news aggregator. This is a great first example because it doesn't require authentication.
+
+## What You'll Build
+
+An MCP server that enables AI assistants to:
+- View articles from the homepage
+- Read comments on posts
+- Navigate different sections (new, best, ask, show)
+- Search for posts
+- Submit new posts
+- View user profiles
+
+## Generate the Server
+
+Create the MCP server with a single command:
+
+```bash
+mcpkit create https://news.ycombinator.com
+```
+
+<Steps>
+  <Step title="URL Analysis">
+    mcpkit analyzes the Hacker News homepage and discovers available actions.
+
+    ```
+    🔨 MCP Server Generator
+    📍 Analyzing: https://news.ycombinator.com
+    ```
+  </Step>
+
+  <Step title="Action Discovery">
+    The AI discovers 6 main actions:
+
+    ```
+    🔍 Discovering actions...
+    ✅ Found 6 actions:
+      - view_article
+      - view_comments
+      - navigate_section
+      - search_posts
+      - submit_post
+      - view_user_profile
+    ```
+  </Step>
+
+  <Step title="Server Generation">
+    A complete MCP server is generated:
+
+    ```
+    📁 mcp-stagehand-news.ycombinator.com/
+    ├── src/
+    │   └── index.ts
+    ├── package.json
+    └── tsconfig.json
+    ```
+  </Step>
+</Steps>
+
+<Check>
+  Your Hacker News MCP server is ready!
+</Check>
+
+## Available Tools
+
+The generated server includes these tools:
+
+### 1. view_article
+
+View a specific article from the homepage.
+
+**Parameters:**
+<ParamField path="title" type="string" required>
+  The title of the article to view
+</ParamField>
+
+**Example usage:**
+```
+User: Show me the top article on Hacker News
+AI: [Uses view_article with the title of the top article]
+```
+
+### 2. view_comments
+
+View the comments for a specific article.
+
+**Parameters:**
+<ParamField path="title" type="string" required>
+  The title of the article whose comments to view
+</ParamField>
+
+**Example usage:**
+```
+User: Show me the comments on the article about AI safety
+AI: [Uses view_comments with title "AI safety discussion"]
+```
+
+### 3. navigate_section
+
+Navigate to different sections of Hacker News.
+
+**Parameters:**
+<ParamField path="section" type="string" required>
+  The section to navigate to (e.g., "new", "best", "ask", "show", "jobs")
+</ParamField>
+
+**Example usage:**
+```
+User: What are the newest posts on HN?
+AI: [Uses navigate_section with section "new"]
+```
+
+### 4. search_posts
+
+Search Hacker News for posts matching a query.
+
+**Parameters:**
+<ParamField path="query" type="string" required>
+  The search query
+</ParamField>
+
+**Example usage:**
+```
+User: Search Hacker News for articles about React
+AI: [Uses search_posts with query "React"]
+```
+
+### 5. submit_post
+
+Submit a new post to Hacker News (requires authentication).
+
+**Parameters:**
+<ParamField path="title" type="string" required>
+  The title of the post
+</ParamField>
+
+<ParamField path="url" type="string">
+  The URL of the post (optional)
+</ParamField>
+
+<ParamField path="text" type="string">
+  The text content (optional, if no URL)
+</ParamField>
+
+<Note>
+  This tool requires authentication. You'll need to create an authenticated context first.
+</Note>
+
+### 6. view_user_profile
+
+View the profile of a specific Hacker News user.
+
+**Parameters:**
+<ParamField path="username" type="string" required>
+  The username of the profile to view
+</ParamField>
+
+**Example usage:**
+```
+User: Show me pg's profile on Hacker News
+AI: [Uses view_user_profile with username "pg"]
+```
+
+## Setup and Testing
+
+### Build the Server
+
+```bash
+cd mcp-stagehand-news.ycombinator.com
+npm install
+npm run build
+```
+
+### Test with MCP Inspector
+
+```bash
+npx @modelcontextprotocol/inspector node dist/index.js
+```
+
+This opens a web interface where you can test each tool:
+
+<Frame>
+  <img src="/HNMCP.png" alt="MCP Inspector showing Hacker News tools" />
+</Frame>
+
+### Add to Claude Code
+
+```bash
+claude mcp add --transport stdio "hackernews" -- node /absolute/path/to/dist/index.js
+```
+
+## Example Prompts
+
+Once your server is connected, try these prompts:
+
+<AccordionGroup>
+  <Accordion title="Research Mode" icon="magnifying-glass">
+    **Prompt:** "Search Hacker News for articles about LLMs from the past week"
+
+    **What happens:**
+    1. Uses `search_posts` with query "LLMs"
+    2. Filters results by date
+    3. Returns summaries of relevant articles
+  </Accordion>
+
+  <Accordion title="Trend Monitoring" icon="chart-line">
+    **Prompt:** "What are the top 3 posts on Hacker News right now and what are people saying about them?"
+
+    **What happens:**
+    1. Navigates to homepage
+    2. Extracts top 3 article titles
+    3. Uses `view_comments` for each
+    4. Summarizes discussion themes
+  </Accordion>
+
+  <Accordion title="User Research" icon="user">
+    **Prompt:** "Show me what patio11 has been posting about lately"
+
+    **What happens:**
+    1. Uses `view_user_profile` with username "patio11"
+    2. Extracts recent submissions and comments
+    3. Summarizes activity
+  </Accordion>
+
+  <Accordion title="Content Discovery" icon="compass">
+    **Prompt:** "Find Ask HN posts about career advice"
+
+    **What happens:**
+    1. Uses `navigate_section` with "ask"
+    2. Uses `search_posts` with "career advice"
+    3. Returns relevant discussions
+  </Accordion>
+</AccordionGroup>
+
+## How It Works
+
+### Under the Hood
+
+The generated tools use Stagehand's AI-powered browser automation:
+
+```typescript
+// Example: view_article tool implementation
+async function viewArticle(title: string) {
+  const stagehand = await initStagehand();
+  const page = stagehand.context.pages()[0];
+
+  await page.goto(TARGET_URL);
+
+  // Use Stagehand's act method to click the article
+  await stagehand.act(`click on the article titled "${title}"`);
+
+  // Extract article content
+  const content = await stagehand.extract(
+    "extract article title, URL, and text content",
+    z.object({
+      title: z.string(),
+      url: z.string().url(),
+      content: z.string()
+    })
+  );
+
+  return content;
+}
+```
+
+### Context Management
+
+The server automatically manages Browserbase contexts:
+
+1. **Check for saved context** - Looks for `~/.mcpkit/contexts/news.ycombinator.com.txt`
+2. **Create new if needed** - Creates a fresh Browserbase context
+3. **Initialize Stagehand** - Connects to the browser session
+4. **Execute action** - Runs the requested tool
+5. **Return results** - Sends structured data back to the AI
+
+## Customization Ideas
+
+### Add More Tools
+
+Extend the generated server with custom tools:
+
+```typescript
+// Add a tool to get top comments
+{
+  name: "get_top_comments",
+  description: "Get the most upvoted comments on an article",
+  inputSchema: {
+    type: "object",
+    properties: {
+      title: { type: "string" },
+      limit: { type: "number", default: 5 }
+    }
+  }
+}
+```
+
+### Improve Extraction
+
+Enhance data extraction with better schemas:
+
+```typescript
+const ArticleSchema = z.object({
+  title: z.string(),
+  url: z.string().url(),
+  points: z.number(),
+  author: z.string(),
+  timestamp: z.string(),
+  commentCount: z.number(),
+  content: z.string().optional()
+});
+```
+
+### Add Caching
+
+Cache frequently accessed data:
+
+```typescript
+const articleCache = new Map();
+
+async function viewArticle(title: string) {
+  if (articleCache.has(title)) {
+    return articleCache.get(title);
+  }
+
+  const result = await fetchArticle(title);
+  articleCache.set(title, result);
+  return result;
+}
+```
+
+## Common Use Cases
+
+<Tabs>
+  <Tab title="Research Assistant">
+    Use the Hacker News MCP to research technical topics:
+
+    ```
+    "Find discussions about Rust vs Go on Hacker News and summarize the main arguments"
+    ```
+
+    The AI will:
+    - Search for relevant posts
+    - Read comment threads
+    - Extract key points from discussions
+    - Provide a balanced summary
+  </Tab>
+
+  <Tab title="Trend Tracking">
+    Monitor what's trending in tech:
+
+    ```
+    "What are the hottest topics on HN today?"
+    ```
+
+    The AI will:
+    - Check top posts
+    - Analyze comment engagement
+    - Identify recurring themes
+    - Report trending topics
+  </Tab>
+
+  <Tab title="Content Curation">
+    Find content for newsletters or social media:
+
+    ```
+    "Find the most interesting AI-related posts from this week with active discussions"
+    ```
+
+    The AI will:
+    - Search for AI posts
+    - Filter by date and activity
+    - Read comments to gauge interest
+    - Curate a list of top posts
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Tool execution times out" icon="clock">
+    Hacker News is usually fast, but if tools timeout:
+
+    1. **Check internet connection**
+    2. **Verify Browserbase quota** - Make sure you haven't hit limits
+    3. **Try again** - HN can occasionally be slow
+  </Accordion>
+
+  <Accordion title="Article not found" icon="search">
+    If `view_article` can't find an article:
+
+    1. **Check exact title** - Use the exact title from HN
+    2. **Article may have fallen off front page** - Try navigating to "new" first
+    3. **Use search instead** - Try `search_posts` for more flexibility
+  </Accordion>
+
+  <Accordion title="Submit post fails" icon="paper-plane">
+    To submit posts, you need authentication:
+
+    ```bash
+    # Create authenticated context
+    mcpkit contexts create news.ycombinator.com
+
+    # Regenerate server with context
+    mcpkit create https://news.ycombinator.com --skip-auth
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Try More Examples"
+    icon="book"
+    href="/examples/overview"
+  >
+    See other example MCP servers
+  </Card>
+
+  <Card
+    title="Customize Tools"
+    icon="screwdriver-wrench"
+    href="/advanced/custom-tools"
+  >
+    Learn to extend generated servers
+  </Card>
+
+  <Card
+    title="Add Authentication"
+    icon="lock"
+    href="/advanced/authentication"
+  >
+    Add authenticated features
+  </Card>
+
+  <Card
+    title="Use with AI Tools"
+    icon="robot"
+    href="/ai-tools/claude-code"
+  >
+    Integrate with your AI assistant
+  </Card>
+</CardGroup>

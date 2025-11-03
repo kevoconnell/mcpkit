@@ -60,7 +60,7 @@ async function runCreate(url?: string, skipAuth?: boolean) {
           new URL(value);
           return true;
         } catch {
-          return "Please enter a valid URL (e.g., https://linear.app)";
+          return "Please enter a valid URL (e.g., https://mcpkit.sh)";
         }
       },
     });

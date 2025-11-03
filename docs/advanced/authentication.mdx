@@ -1,0 +1,357 @@
+---
+title: "Authentication"
+description: "Advanced guide to handling authentication in mcpkit-generated MCP servers"
+icon: "lock"
+---
+
+Learn how mcpkit handles authentication, manages browser contexts, and secures your credentials.
+
+## How Authentication Works
+
+mcpkit uses Browserbase's persistent context feature to save and reuse authentication sessions:
+
+<Steps>
+  <Step title="Initial Authentication">
+    When you first create an MCP server for an authenticated site, mcpkit opens a live browser session where you can log in normally.
+  </Step>
+
+  <Step title="Context Storage">
+    The browser context ID is saved to `~/.mcpkit/contexts/<domain>.txt`
+  </Step>
+
+  <Step title="Context Reuse">
+    Future MCP server executions load the saved context, so you don't need to log in again.
+  </Step>
+</Steps>
+
+## Authentication Flow
+
+### For End Users
+
+When using an mcpkit-generated MCP server:
+
+```bash
+# First time: Authenticate
+mcpkit create https://mcpkit.sh
+# Complete login in browser
+
+# Server uses saved context automatically
+# No re-authentication needed!
+```
+
+### For Developers
+
+In generated servers (`src/index.ts`):
+
+```typescript
+/**
+ * Get saved context ID from mcpkit contexts
+ */
+async function getSavedContextId(domain: string): Promise<string | null> {
+  const contextFilePath = path.join(
+    os.homedir(),
+    ".mcpkit",
+    "contexts",
+    `${domain}.txt`
+  );
+
+  try {
+    const contextId = await fs.readFile(contextFilePath, "utf-8");
+    return contextId.trim();
+  } catch {
+    return null; // No saved context
+  }
+}
+
+// Initialize Stagehand with saved or new context
+const contextId = await getSavedContextId("mcpkit.sh");
+
+const stagehand = new Stagehand({
+  env: "BROWSERBASE",
+  apiKey: process.env.BROWSERBASE_API_KEY!,
+  projectId: process.env.BROWSERBASE_PROJECT_ID!,
+  contextId: contextId || undefined, // Use saved context if available
+});
+```
+
+## Managing Contexts
+
+### View Saved Contexts
+
+```bash
+mcpkit contexts list
+```
+
+### Create New Context
+
+```bash
+mcpkit contexts create mcpkit.sh
+```
+
+### Delete Context
+
+```bash
+mcpkit contexts delete mcpkit.sh
+```
+
+### Show Context Details
+
+```bash
+mcpkit contexts show mcpkit.sh
+```
+
+## Security Best Practices
+
+<Warning>
+  Authentication contexts contain sensitive session data. Follow these practices
+  to keep them secure.
+</Warning>
+
+### 1. Protect Context Files
+
+```bash
+# Check permissions
+ls -la ~/.mcpkit/contexts/
+
+# Should be 600 (readable only by you)
+chmod 600 ~/.mcpkit/contexts/*.txt
+```
+
+### 2. Use Separate Accounts
+
+For automation, create dedicated service accounts:
+
+```
+automation@company.com - For internal tool MCPs
+bot@company.com - For public service MCPs
+```
+
+### 3. Rotate Contexts Regularly
+
+```bash
+# Weekly rotation example
+mcpkit contexts delete mcpkit.sh
+mcpkit contexts create mcpkit.sh
+```
+
+### 4. Never Commit Contexts
+
+Add to `.gitignore`:
+
+```gitignore
+.mcpkit/
+*.context
+*_context.txt
+```
+
+## Common Authentication Types
+
+### OAuth / SSO
+
+Many modern tools use OAuth or SSO:
+
+```bash
+mcpkit create https://mcpkit.sh
+# Opens browser -> Login with Google/GitHub
+# mcpkit saves the resulting session
+```
+
+**Supported:**
+
+- Google OAuth
+- GitHub OAuth
+- Microsoft OAuth
+- SAML SSO
+- Custom OAuth providers
+
+### Username & Password
+
+Traditional login forms:
+
+```bash
+mcpkit create https://oldschool-tool.com
+# Opens browser -> Enter username/password
+# Complete any 2FA if required
+# mcpkit saves session
+```
+
+### API Keys
+
+Some tools use API key authentication:
+
+```typescript
+// In generated server, you can customize to use API keys
+const response = await fetch("https://api.example.com/data", {
+  headers: {
+    Authorization: `Bearer ${process.env.API_KEY}`,
+  },
+});
+```
+
+<Tip>
+  For API-first tools, you might not need browser automation at all. Consider
+  using the native API directly.
+</Tip>
+
+### Multi-Factor Authentication (2FA)
+
+mcpkit fully supports 2FA:
+
+```bash
+mcpkit create https://secure-app.com
+# Login normally
+# Complete 2FA (SMS, authenticator app, etc.)
+# Wait until fully logged in
+# Press Enter to save context
+```
+
+## Troubleshooting Authentication
+
+<AccordionGroup>
+  <Accordion title="Session Expired" icon="clock">
+    If your saved context stops working:
+
+    ```bash
+    # Delete old context
+    mcpkit contexts delete example.com
+
+    # Create new one
+    mcpkit contexts create example.com
+    ```
+
+    **Why it happens:**
+    - Session tokens have expiration dates
+    - Password changes invalidate sessions
+    - Security policies force re-authentication
+
+  </Accordion>
+
+  <Accordion title="Login Loop" icon="rotate">
+    If the browser keeps asking you to log in:
+
+    1. **Complete all authentication steps** - Don't press Enter until fully logged in
+    2. **Check for redirects** - Wait for final landing page
+    3. **Verify cookies** - Some sites use complex cookie setups
+    4. **Try incognito** - Clear any conflicting sessions
+
+    ```bash
+    # Start fresh
+    mcpkit contexts delete example.com
+    # Try in a clean browser state
+    mcpkit contexts create example.com
+    ```
+
+  </Accordion>
+
+  <Accordion title="2FA Not Working" icon="shield">
+    If two-factor authentication fails:
+
+    1. **Use authenticator apps** over SMS when possible
+    2. **Complete before pressing Enter** - Don't rush the process
+    3. **Check for "remember this device"** - Enable if available
+    4. **Verify time sync** - TOTP codes require accurate system time
+
+  </Accordion>
+
+  <Accordion title="Permission Denied" icon="ban">
+    If tools fail with permission errors:
+
+    1. **Check account permissions** - Verify you have necessary access rights
+    2. **Try different account** - Use an admin account if needed
+    3. **Review workspace settings** - Some features may be restricted
+    4. **Contact admin** - Request necessary permissions
+
+  </Accordion>
+</AccordionGroup>
+
+## Advanced Patterns
+
+### Context Sharing (Team Use)
+
+For authorized internal tools only:
+
+```bash
+# Export context ID
+cat ~/.mcpkit/contexts/internal-tool.com.txt
+
+# Share with team (securely)
+# They save it to their own ~/.mcpkit/contexts/internal-tool.com.txt
+```
+
+<Warning>
+  Only share contexts for authorized service accounts on internal tools. Never
+  share personal account contexts.
+</Warning>
+
+### Conditional Authentication
+
+Check if authentication is needed:
+
+```typescript
+async function ensureAuthenticated() {
+  const contextId = await getSavedContextId(DOMAIN);
+
+  if (!contextId) {
+    throw new Error(
+      `No saved context for ${DOMAIN}. Run: mcpkit contexts create ${DOMAIN}`
+    );
+  }
+
+  return contextId;
+}
+```
+
+### Session Refresh
+
+Automatically refresh sessions:
+
+```typescript
+async function refreshSessionIfNeeded(stagehand: Stagehand) {
+  const page = stagehand.context.pages()[0];
+
+  // Check if still logged in
+  const isLoggedIn = await stagehand.extract(
+    "check if user is logged in",
+    z.boolean()
+  );
+
+  if (!isLoggedIn) {
+    throw new Error("Session expired. Please re-authenticate.");
+  }
+}
+```
+
+## Environment Variables
+
+Store sensitive data in environment variables:
+
+```bash
+# .env in generated server
+BROWSERBASE_API_KEY=bb_xxxxx
+BROWSERBASE_PROJECT_ID=xxxxx
+BROWSERBASE_CONTEXT_ID=ctx_xxxxx  # Optional: override saved context
+
+# Application credentials (if needed)
+APP_USERNAME=automation@company.com
+APP_API_KEY=secret_key_here
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Manage Contexts"
+    icon="database"
+    href="/commands/contexts"
+  >
+    Learn about the contexts command
+  </Card>
+
+  <Card
+    title="Custom Tools"
+    icon="screwdriver-wrench"
+    href="/advanced/custom-tools"
+  >
+    Customize authentication in generated servers
+  </Card>
+</CardGroup>

@@ -1,7 +1,94 @@
 ---
-title: 'Development'
-description: 'Preview changes locally to update your docs'
+title: "Development"
+description: "Contributing to mcpkit and developing locally"
 ---
+
+This guide covers how to set up mcpkit for local development and contribute to the project.
+
+## Development Setup
+
+<Steps>
+  <Step title="Clone the Repository">
+    ```bash
+    git clone https://github.com/kevinoconnell/mcpkit.git
+    cd mcpkit
+    ```
+  </Step>
+
+  <Step title="Install Dependencies">
+    ```bash
+    npm install
+    ```
+  </Step>
+
+  <Step title="Build the Project">
+    ```bash
+    npm run build
+    ```
+  </Step>
+
+  <Step title="Link for Local Testing">
+    ```bash
+    npm link
+    ```
+
+    Now you can use `mcpkit` command globally with your local changes.
+  </Step>
+</Steps>
+
+## Running Locally
+
+Test your changes without building:
+
+```bash
+# Use tsx for hot reload
+npm run dev create https://example.com
+
+# Or run commands directly
+npx tsx src/cli.ts create https://example.com
+npx tsx src/cli.ts secrets
+npx tsx src/cli.ts contexts list
+```
+
+## Contributing
+
+### Pull Request Process
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Test thoroughly with multiple websites
+5. Commit (`git commit -m 'feat: add amazing feature'`)
+6. Push (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+### Commit Convention
+
+Use conventional commits:
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `docs:` - Documentation changes
+- `chore:` - Maintenance tasks
+
+## Getting Help
+
+<CardGroup cols={2}>
+  <Card
+    title="GitHub Discussions"
+    icon="github"
+    href="https://github.com/kevinoconnell/mcpkit/discussions"
+  >
+    Ask questions and discuss ideas
+  </Card>
+
+  <Card
+    title="Discord"
+    icon="discord"
+    href="https://discord.gg/ASQJAxzM"
+  >
+    Chat with contributors
+  </Card>
+</CardGroup>
 
 <Info>
   **Prerequisites**:

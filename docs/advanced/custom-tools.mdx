@@ -1,0 +1,556 @@
+---
+title: "Custom Tools"
+description: "Extend and customize mcpkit-generated MCP servers"
+icon: "screwdriver-wrench"
+---
+
+Generated MCP servers are fully editable TypeScript projects. Learn how to customize them for your specific needs.
+
+## Generated Server Structure
+
+Every mcpkit-generated server follows this structure:
+
+```
+mcp-stagehand-<domain>/
+├── src/
+│   └── index.ts          # Main server file
+├── dist/                 # Compiled JavaScript
+├── .env                  # Environment variables
+├── .env.example
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+The entire automation logic is in `src/index.ts`, making it easy to customize.
+
+## Adding New Tools
+
+To add a custom tool to your generated server:
+
+<Steps>
+  <Step title="Define the Tool">
+    Add the tool definition to the `tools` array:
+
+    ```typescript
+    // In src/index.ts, find the ListToolsRequestSchema handler
+    server.setRequestHandler(ListToolsRequestSchema, async () => ({
+      tools: [
+        // ... existing tools ...
+
+        // Add your new tool
+        {
+          name: "get_issue_analytics",
+          description: "Get analytics for issues in a project",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectName: {
+                type: "string",
+                description: "Name of the project"
+              },
+              timeframe: {
+                type: "string",
+                enum: ["week", "month", "quarter"],
+                description: "Time period for analytics"
+              }
+            },
+            required: ["projectName"]
+          }
+        }
+      ]
+    }));
+    ```
+  </Step>
+
+  <Step title="Implement the Handler">
+    Add the implementation in the `CallToolRequestSchema` handler:
+
+    ```typescript
+    server.setRequestHandler(CallToolRequestSchema, async (request) => {
+      const { name, arguments: args } = request.params;
+
+      switch (name) {
+        // ... existing cases ...
+
+        case "get_issue_analytics": {
+          const { projectName, timeframe = "month" } = args as {
+            projectName: string;
+            timeframe?: "week" | "month" | "quarter";
+          };
+
+          const stagehand = await ensureInitialized();
+          const page = stagehand.context.pages()[0];
+
+          // Navigate to analytics
+          await page.goto(`${TARGET_URL}/team/analytics`);
+          await stagehand.act(`select project "${projectName}"`);
+          await stagehand.act(`set timeframe to ${timeframe}`);
+
+          // Extract analytics data
+          const analytics = await stagehand.extract(
+            "extract issue analytics including total issues, completed, in progress, and trend data",
+            z.object({
+              totalIssues: z.number(),
+              completed: z.number(),
+              inProgress: z.number(),
+              avgCompletionTime: z.string(),
+              trend: z.enum(["up", "down", "stable"])
+            })
+          );
+
+          return {
+            content: [{
+              type: "text",
+              text: JSON.stringify(analytics, null, 2)
+            }]
+          };
+        }
+
+        default:
+          throw new Error(`Unknown tool: ${name}`);
+      }
+    });
+    ```
+  </Step>
+
+  <Step title="Test the Tool">
+    Rebuild and test with MCP Inspector:
+
+    ```bash
+    npm run build
+    npx @modelcontextprotocol/inspector node dist/index.js
+    ```
+  </Step>
+</Steps>
+
+## Modifying Existing Tools
+
+### Improve Error Handling
+
+```typescript
+case "create_issue": {
+  try {
+    const stagehand = await ensureInitialized();
+
+    await stagehand.act(`click new issue button`);
+    await stagehand.act(`type "${args.title}" in title field`);
+
+    return {
+      content: [{
+        type: "text",
+        text: "Issue created successfully"
+      }]
+    };
+  } catch (error) {
+    // Add specific error messages
+    if (error.message.includes("permission")) {
+      return {
+        content: [{
+          type: "text",
+          text: "Error: You don't have permission to create issues in this project"
+        }],
+        isError: true
+      };
+    }
+
+    if (error.message.includes("timeout")) {
+      return {
+        content: [{
+          type: "text",
+          text: "Error: Operation timed out. Please try again."
+        }],
+        isError: true
+      };
+    }
+
+    throw error; // Re-throw unknown errors
+  }
+}
+```
+
+### Add Input Validation
+
+```typescript
+case "set_issue_priority": {
+  const { issueId, priority } = args as {
+    issueId: string;
+    priority: string;
+  };
+
+  // Validate input format
+  if (!/^[A-Z]+-\d+$/.test(issueId)) {
+    return {
+      content: [{
+        type: "text",
+        text: `Invalid issue ID format. Expected format: ABC-123, got: ${issueId}`
+      }],
+      isError: true
+    };
+  }
+
+  const validPriorities = ["urgent", "high", "medium", "low", "none"];
+  if (!validPriorities.includes(priority)) {
+    return {
+      content: [{
+        type: "text",
+        text: `Invalid priority. Must be one of: ${validPriorities.join(", ")}`
+      }],
+      isError: true
+    };
+  }
+
+  // ... rest of implementation
+}
+```
+
+### Enhance Extraction Schemas
+
+```typescript
+// Before: Basic extraction
+const result = await stagehand.extract(
+  "get issue details",
+  z.object({ title: z.string() })
+);
+
+// After: Comprehensive extraction
+const result = await stagehand.extract(
+  "get complete issue details including all metadata",
+  z.object({
+    id: z.string(),
+    title: z.string(),
+    description: z.string().optional(),
+    status: z.enum(["todo", "in_progress", "done", "canceled"]),
+    priority: z.enum(["urgent", "high", "medium", "low", "none"]).optional(),
+    assignee: z.object({
+      name: z.string(),
+      email: z.string().email(),
+      avatar: z.string().url().optional()
+    }).optional(),
+    labels: z.array(z.string()).default([]),
+    dueDate: z.string().optional(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    url: z.string().url()
+  })
+);
+```
+
+## Performance Optimizations
+
+### Add Caching
+
+```typescript
+// At the top of the file
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+function getCached<T>(key: string): T | null {
+  const cached = cache.get(key);
+  if (!cached) return null;
+
+  if (Date.now() - cached.timestamp > CACHE_TTL) {
+    cache.delete(key);
+    return null;
+  }
+
+  return cached.data as T;
+}
+
+function setCache(key: string, data: any) {
+  cache.set(key, { data, timestamp: Date.now() });
+}
+
+// In your tool handler
+case "search_issues": {
+  const cacheKey = `search:${JSON.stringify(args)}`;
+  const cached = getCached(cacheKey);
+
+  if (cached) {
+    return {
+      content: [{ type: "text", text: JSON.stringify(cached) }]
+    };
+  }
+
+  // ... perform search ...
+  const results = await performSearch(args);
+
+  setCache(cacheKey, results);
+
+  return {
+    content: [{ type: "text", text: JSON.stringify(results) }]
+  };
+}
+```
+
+### Batch Operations
+
+```typescript
+case "bulk_update_status": {
+  const { issueIds, status } = args as {
+    issueIds: string[];
+    status: string;
+  };
+
+  // Process in parallel with error handling
+  const results = await Promise.allSettled(
+    issueIds.map(async (id) => {
+      await stagehand.act(`update issue ${id} status to ${status}`);
+      return id;
+    })
+  );
+
+  const succeeded = results
+    .filter((r) => r.status === "fulfilled")
+    .map((r) => (r as PromiseFulfilledResult<string>).value);
+
+  const failed = results
+    .filter((r) => r.status === "rejected")
+    .map((r, i) => ({
+      id: issueIds[i],
+      error: (r as PromiseRejectedResult).reason.message
+    }));
+
+  return {
+    content: [{
+      type: "text",
+      text: JSON.stringify({
+        succeeded: succeeded.length,
+        failed: failed.length,
+        details: { succeeded, failed }
+      }, null, 2)
+    }]
+  };
+}
+```
+
+### Rate Limiting
+
+```typescript
+// Add at the top level
+let lastCallTime = 0;
+const MIN_INTERVAL = 1000; // 1 second between calls
+
+async function rateLimit() {
+  const now = Date.now();
+  const timeSinceLastCall = now - lastCallTime;
+
+  if (timeSinceLastCall < MIN_INTERVAL) {
+    await new Promise(resolve =>
+      setTimeout(resolve, MIN_INTERVAL - timeSinceLastCall)
+    );
+  }
+
+  lastCallTime = Date.now();
+}
+
+// Use before each action
+case "create_issue": {
+  await rateLimit();
+
+  // ... rest of implementation
+}
+```
+
+## Advanced Customizations
+
+### Add Logging
+
+```typescript
+// At the top
+import winston from "winston";
+
+const logger = winston.createLogger({
+  level: "info",
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({ filename: "mcp-server.log" }),
+    new winston.transports.Console({ format: winston.format.simple() })
+  ]
+});
+
+// In tool handlers
+case "create_issue": {
+  logger.info("Creating issue", { title: args.title });
+
+  try {
+    // ... implementation ...
+    logger.info("Issue created successfully", { issueId: result.id });
+  } catch (error) {
+    logger.error("Failed to create issue", { error, args });
+    throw error;
+  }
+}
+```
+
+### Add Metrics
+
+```typescript
+// Track tool usage
+const metrics = {
+  calls: new Map<string, number>(),
+  errors: new Map<string, number>(),
+  latency: new Map<string, number[]>()
+};
+
+function recordMetric(toolName: string, duration: number, error: boolean = false) {
+  metrics.calls.set(toolName, (metrics.calls.get(toolName) || 0) + 1);
+
+  if (error) {
+    metrics.errors.set(toolName, (metrics.errors.get(toolName) || 0) + 1);
+  }
+
+  if (!metrics.latency.has(toolName)) {
+    metrics.latency.set(toolName, []);
+  }
+  metrics.latency.get(toolName)!.push(duration);
+}
+
+// Wrap tool execution
+const startTime = Date.now();
+let error = false;
+
+try {
+  // ... tool implementation ...
+} catch (e) {
+  error = true;
+  throw e;
+} finally {
+  recordMetric(name, Date.now() - startTime, error);
+}
+```
+
+### Custom Authentication
+
+```typescript
+// Override default context loading
+async function getCustomContext(): Promise<string> {
+  // Load from custom location
+  const customContextPath = process.env.CUSTOM_CONTEXT_PATH;
+  if (customContextPath && existsSync(customContextPath)) {
+    return await fs.readFile(customContextPath, "utf-8");
+  }
+
+  // Fall back to standard mcpkit context
+  return await getSavedContextId(DOMAIN) || "";
+}
+```
+
+## Testing Your Changes
+
+### Unit Tests
+
+```typescript
+// tests/tools.test.ts
+import { describe, it, expect } from "vitest";
+
+describe("Issue Creation", () => {
+  it("validates issue title", () => {
+    const invalidTitle = "";
+    expect(() => validateTitle(invalidTitle)).toThrow();
+  });
+
+  it("creates issue with valid data", async () => {
+    const result = await createIssue({
+      title: "Test Issue",
+      priority: "high"
+    });
+
+    expect(result).toHaveProperty("id");
+    expect(result).toHaveProperty("url");
+  });
+});
+```
+
+### Integration Tests
+
+```bash
+# Test with MCP Inspector
+npm run build
+npx @modelcontextprotocol/inspector node dist/index.js
+
+# Test specific tools
+# Use the Inspector UI to call tools with test data
+```
+
+## Deployment Tips
+
+### Environment Configuration
+
+```typescript
+// Load config from multiple sources
+const config = {
+  browserbaseApiKey: process.env.BROWSERBASE_API_KEY,
+  browserbaseProjectId: process.env.BROWSERBASE_PROJECT_ID,
+  contextId: process.env.CONTEXT_ID || await getSavedContextId(DOMAIN),
+  logLevel: process.env.LOG_LEVEL || "info",
+  cacheEnabled: process.env.CACHE_ENABLED === "true",
+  rateLimitMs: parseInt(process.env.RATE_LIMIT_MS || "1000")
+};
+```
+
+### Health Checks
+
+```typescript
+// Add a health check tool
+{
+  name: "health_check",
+  description: "Check if the MCP server is working correctly",
+  inputSchema: {
+    type: "object",
+    properties: {}
+  }
+}
+
+// Implementation
+case "health_check": {
+  try {
+    const stagehand = await ensureInitialized();
+    const page = stagehand.context.pages()[0];
+
+    await page.goto(TARGET_URL);
+
+    return {
+      content: [{
+        type: "text",
+        text: JSON.stringify({
+          status: "healthy",
+          timestamp: new Date().toISOString(),
+          version: "1.0.0"
+        })
+      }]
+    };
+  } catch (error) {
+    return {
+      content: [{
+        type: "text",
+        text: JSON.stringify({
+          status: "unhealthy",
+          error: error.message
+        })
+      }],
+      isError: true
+    };
+  }
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Authentication"
+    icon="lock"
+    href="/advanced/authentication"
+  >
+    Learn about auth handling
+  </Card>
+
+  <Card
+    title="Examples"
+    icon="book"
+    href="/examples/overview"
+  >
+    See real-world customizations
+  </Card>
+</CardGroup>

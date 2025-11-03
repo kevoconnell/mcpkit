@@ -1,97 +1,200 @@
 ---
 title: "Introduction"
-description: "Welcome to the new home for your documentation"
+description: "Generate MCP servers for any website with AI-powered browser automation"
 ---
 
-## Setting up
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/hero-light.png"
+  alt="mcpkit hero image"
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/hero-dark.png"
+  alt="mcpkit hero image"
+/>
 
-Get your documentation site up and running in minutes.
+## What is mcpkit?
+
+**mcpkit** is a CLI tool that generates [Model Context Protocol (MCP)](https://modelcontextprotocol.io) servers for any website using [Stagehand](https://github.com/browserbase/stagehand) browser automation. With mcpkit, you can give any AI assistant the ability to interact with websites through natural language.
+
+<CardGroup cols={2}>
+  <Card
+    title="Generate MCP Servers"
+    icon="wand-magic-sparkles"
+  >
+    Automatically create MCP servers by analyzing any website's functionality
+  </Card>
+  <Card
+    title="Powered by Browserbase"
+    icon="browser"
+  >
+    Run browser automation anywhere with just an API key - no local browser required
+  </Card>
+  <Card
+    title="AI-Powered Discovery"
+    icon="robot"
+  >
+    Automatically detect and document website actions using AI
+  </Card>
+  <Card
+    title="Authentication Handling"
+    icon="lock"
+  >
+    Save and reuse authentication contexts across sessions
+  </Card>
+</CardGroup>
+
+## Quick Start
+
+Get up and running in minutes:
+
+<Steps>
+  <Step title="Install mcpkit">
+    ```bash
+    npm install -g mcpkit
+    ```
+  </Step>
+
+  <Step title="Set up credentials">
+    ```bash
+    mcpkit secrets
+    ```
+    You'll need:
+    - Browserbase API key ([get one here](https://www.browserbase.com))
+    - LLM API key (Gemini, OpenAI, etc.)
+  </Step>
+
+  <Step title="Create your first MCP server">
+    ```bash
+    mcpkit create https://mcpkit.sh
+    ```
+  </Step>
+</Steps>
 
 <Card
-  title="Start here"
+  title="Full Quickstart Guide"
   icon="rocket"
   href="/quickstart"
-  horizontal
 >
-  Follow our three step quickstart guide.
+  Follow our detailed quickstart guide to create your first MCP server
 </Card>
 
-## Make it yours
+## How It Works
 
-Design a docs site that looks great and empowers your users.
+mcpkit uses AI to:
 
-<Columns cols={2}>
+1. **Analyze** - Navigate to your target website and discover available actions
+2. **Authenticate** - Optionally save authentication contexts for future use
+3. **Generate** - Create a complete MCP server with tools based on discovered actions
+4. **Deploy** - Use your MCP server with Claude Code, Cursor, or any MCP client
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion title="Project Management" icon="clipboard-check">
+    Generate MCP servers for Linear, Jira, Asana, or other project management tools to let AI assistants create tasks, update issues, and manage projects.
+  </Accordion>
+
+  <Accordion title="Content Platforms" icon="newspaper">
+    Create servers for content sites like Hacker News, Reddit, or Medium to enable AI-powered content discovery and interaction.
+  </Accordion>
+
+  <Accordion title="Internal Tools" icon="building">
+    Build MCP servers for your company's internal web applications to automate workflows and improve productivity.
+  </Accordion>
+
+  <Accordion title="Research & Monitoring" icon="magnifying-glass">
+    Generate servers for data sources, dashboards, or monitoring tools to help AI assistants gather and analyze information.
+  </Accordion>
+</AccordionGroup>
+
+## Key Features
+
+### AI-Powered Action Discovery
+
+mcpkit automatically discovers what actions are possible on a website by:
+- Analyzing page structure and interactive elements
+- Understanding navigation patterns
+- Identifying common workflows
+- Generating tool schemas for each action
+
+### Authentication Management
+
+Save authentication contexts to avoid repeated logins:
+
+```bash
+# List saved contexts
+mcpkit contexts list
+
+# Create a new authenticated context
+mcpkit contexts create mcpkit.sh
+
+# Delete a context
+mcpkit contexts delete mcpkit.sh
+```
+
+### Flexible MCP Servers
+
+Generated servers include:
+- Complete MCP tool definitions
+- Type-safe schemas with Zod validation
+- Authentication handling
+- Error management
+- Logging and debugging support
+
+## What You Can Build
+
+With mcpkit-generated MCP servers, you can:
+
+- ✅ Create and update tasks in project management tools
+- ✅ Search and extract data from websites
+- ✅ Automate form submissions and workflows
+- ✅ Monitor dashboards and gather analytics
+- ✅ Interact with internal company tools
+- ✅ Build custom AI agents with web access
+
+## Technology Stack
+
+mcpkit is built on:
+
+- **[Stagehand](https://github.com/browserbase/stagehand)** - AI-powered browser automation
+- **[Browserbase](https://www.browserbase.com)** - Serverless browser infrastructure
+- **[Model Context Protocol](https://modelcontextprotocol.io)** - Standard for AI-tool communication
+- **TypeScript** - Type-safe code generation
+
+## Next Steps
+
+<CardGroup cols={2}>
   <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
+    title="Quickstart Guide"
+    icon="rocket"
+    href="/quickstart"
   >
-    Edit your docs locally and preview them in real time.
+    Create your first MCP server in minutes
   </Card>
+
   <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
+    title="CLI Commands"
     icon="terminal"
-    href="/api-reference/introduction"
+    href="/commands/create"
   >
-    Auto-generate API documentation from OpenAPI specifications.
+    Learn about all available commands
   </Card>
-</Columns>
 
-## Create beautiful pages
-
-Everything you need to create world-class documentation.
-
-<Columns cols={2}>
   <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
+    title="Examples"
+    icon="book"
+    href="/examples/overview"
   >
-    Use MDX to style your docs pages.
+    See example MCP servers
   </Card>
+
   <Card
-    title="Code samples"
+    title="Use with Claude Code"
     icon="code"
-    href="/essentials/code"
+    href="/ai-tools/claude-code"
   >
-    Add sample code to demonstrate how to use your product.
+    Integrate with your AI coding assistant
   </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
-
-## Need inspiration?
-
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+</CardGroup>

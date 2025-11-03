@@ -1,80 +1,255 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Create your first MCP server in 5 minutes"
 ---
 
-## Get started in three steps
+This guide will walk you through creating your first MCP server using mcpkit. You'll generate a server for Hacker News that can search and extract articles.
 
-Get your documentation site running locally and make your first customization.
+## Prerequisites
 
-### Step 1: Set up your local environment
+Before you begin, you'll need:
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
-
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
+- Node.js 18 or later installed
+- A Browserbase API key ([sign up here](https://www.browserbase.com))
+- An LLM API key (Gemini recommended for best results)
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  Don't have API keys? You can get a free Browserbase API key and a free Gemini API key to get started.
 </Note>
+
+## Step 1: Install mcpkit
+
+Install mcpkit globally using npm:
+
+```bash
+npm install -g mcpkit
+```
+
+Verify the installation:
+
+```bash
+mcpkit version
+```
+
+<Check>
+  You should see the version number printed to the console.
+</Check>
+
+## Step 2: Configure API Keys
+
+Run the secrets setup command:
+
+```bash
+mcpkit secrets
+```
+
+You'll be prompted to enter:
+
+1. **Browserbase API key** - Get yours at [browserbase.com](https://www.browserbase.com)
+2. **LLM provider and API key** - Choose from:
+   - Google Gemini (recommended)
+   - OpenAI
+   - Anthropic
+   - Azure OpenAI
+
+<Tip>
+  We recommend using Google Gemini 2.0 Flash for the best balance of speed and quality.
+</Tip>
+
+Your credentials are stored securely in:
+- macOS/Linux: `~/.mcpkit/secrets.json`
+- Windows: `%USERPROFILE%\.mcpkit\secrets.json`
+
+## Step 3: Create Your First MCP Server
+
+Let's create an MCP server for Hacker News:
+
+```bash
+mcpkit create https://news.ycombinator.com
+```
+
+<Steps>
+  <Step title="Website Analysis">
+    mcpkit will launch a browser session and analyze the website to discover available actions.
+
+    <Info>
+      This step uses Browserbase to run a headless browser in the cloud, so you don't need Chrome installed locally.
+    </Info>
+  </Step>
+
+  <Step title="Authentication (Optional)">
+    If the website requires authentication, you'll be prompted to log in through a live browser session.
+
+    ```
+    🔐 This site may require authentication.
+    Would you like to authenticate? (Y/n)
+    ```
+
+    Your authentication context will be saved for future use.
+  </Step>
+
+  <Step title="Action Discovery">
+    mcpkit will automatically discover actions like:
+    - Searching for articles
+    - Reading article content
+    - Extracting comments
+    - Navigating pages
+  </Step>
+
+  <Step title="Server Generation">
+    A complete MCP server will be generated in a new folder:
+
+    ```
+    📁 mcp-stagehand-news.ycombinator.com/
+    ├── src/
+    │   ├── index.ts        # Main MCP server
+    │   └── tools/          # Generated tools
+    ├── package.json
+    └── tsconfig.json
+    ```
+  </Step>
+</Steps>
+
+<Check>
+  Your MCP server has been successfully generated!
+</Check>
+
+## Step 4: Test Your MCP Server
+
+Navigate to the generated folder:
+
+```bash
+cd mcp-stagehand-news.ycombinator.com
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Build the server:
+
+```bash
+npm run build
+```
+
+Test with the MCP Inspector:
+
+```bash
+npx @modelcontextprotocol/inspector node dist/index.js
+```
+
+<Frame>
+  <img src="/HNMCP.png" alt="MCP Inspector showing Hacker News server tools" />
+</Frame>
+
+You should see a list of available tools that the AI can use to interact with Hacker News.
+
+## Step 5: Use with Claude Code
+
+To use your MCP server with Claude Code, add it to your MCP configuration:
+
+```bash
+claude mcp add --transport stdio "hackernews" -- node dist/index.js
+```
+
+Now you can ask Claude to:
+- "Search Hacker News for articles about AI"
+- "Get me the top story from Hacker News"
+- "Find discussions about React on HN"
+
+<Tip>
+  Make sure to provide the absolute path to `dist/index.js` if you're adding the server from a different directory.
+</Tip>
+
+## What's Next?
+
+<CardGroup cols={2}>
+  <Card
+    title="Explore CLI Commands"
+    icon="terminal"
+    href="/commands/create"
+  >
+    Learn about all available mcpkit commands
+  </Card>
+
+  <Card
+    title="View Examples"
+    icon="book"
+    href="/examples/overview"
+  >
+    See example MCP servers for different websites
+  </Card>
+
+  <Card
+    title="Manage Contexts"
+    icon="database"
+    href="/commands/contexts"
+  >
+    Learn how to save and reuse authentication contexts
+  </Card>
+
+  <Card
+    title="Advanced Features"
+    icon="wand-magic-sparkles"
+    href="/advanced/custom-tools"
+  >
+    Customize and extend your MCP servers
+  </Card>
+</CardGroup>
+
+## Common Issues
+
+<AccordionGroup>
+  <Accordion title="Browser session fails to connect" icon="wifi">
+    Make sure your Browserbase API key is valid and you have an active internet connection.
+
+    ```bash
+    # Check your secrets
+    mcpkit secrets show
+    ```
+  </Accordion>
+
+  <Accordion title="Action discovery finds no actions" icon="magnifying-glass">
+    Some websites have dynamic content that loads slowly. Try:
+    - Using a more specific URL (e.g., a specific page rather than the homepage)
+    - Ensuring the website is accessible and not behind a paywall
+    - Checking if the website requires authentication
+  </Accordion>
+
+  <Accordion title="Generated server doesn't work" icon="triangle-exclamation">
+    Common fixes:
+    - Make sure you ran `npm install` and `npm run build`
+    - Check that Node.js version is 18 or later
+    - Verify your Browserbase API key is still valid
+    - Try regenerating the server with `mcpkit create` again
+  </Accordion>
+
+  <Accordion title="Authentication context not saving" icon="lock">
+    Authentication contexts are stored per domain. Make sure:
+    - You completed the authentication flow
+    - The domain matches (www.example.com vs example.com)
+    - You have write permissions to `~/.mcpkit/contexts/`
+  </Accordion>
+</AccordionGroup>
+
+## Need Help?
+
+<CardGroup cols={2}>
+  <Card
+    title="Join Discord"
+    icon="discord"
+    href="https://discord.gg/ASQJAxzM"
+  >
+    Get help from the community
+  </Card>
+
+  <Card
+    title="GitHub Issues"
+    icon="github"
+    href="https://github.com/kevinoconnell/mcpkit/issues"
+  >
+    Report bugs or request features
+  </Card>
+</CardGroup>

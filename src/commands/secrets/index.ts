@@ -152,7 +152,7 @@ export async function setupSecrets(options?: {
 BROWSERBASE_PROJECT_ID=${browserbaseProjectId}
 BROWSERBASE_API_KEY=${browserbaseApiKey}
 
-# AI Model Configuration (Gemini)
+# AI Model Configuration
 MODEL_API_KEY=${modelApiKey}
 MODEL_PROVIDER=${modelProvider}
 `;

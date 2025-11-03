@@ -46,7 +46,7 @@ mcpkit create https://news.ycombinator.com
 mcpkit create  # Interactive mode
 ```
 
-
+### `mcpkit contexts`
 Manage saved authentication contexts for websites.
 
 **Actions:**
@@ -75,6 +75,8 @@ Display help information and available commands.
 
 ### `mcpkit version`
 Show the current version of mcpkit.
+
+**Note:** For detailed documentation, examples, and guides, visit **[mcpkit.sh](https://mcpkit.sh)**
 
 ## Testing Generated MCP Servers
 

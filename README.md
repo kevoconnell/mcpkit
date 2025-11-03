@@ -1,10 +1,10 @@
-# mcpkit
+# MCPKit
 
 > Easy setup for MCPs with Browserbase. Run browser automation anywhere with just an API key.
 
-## What is mcpkit?
+## What is MCPKit?
 
-**mcpkit** is a CLI tool that generates [Stagehand](https://github.com/browserbase/stagehand) MCP servers for any website. With this, an LLM can do any kind of web flow.
+**MCPKit** is a CLI tool that generates [Stagehand](https://github.com/browserbase/stagehand) MCP servers for any website. With this, an LLM can do any kind of web flow.
 
 ## Quick Start
 
@@ -74,7 +74,7 @@ mcpkit secrets  # Interactive setup
 Display help information and available commands.
 
 ### `mcpkit version`
-Show the current version of mcpkit.
+Show the current version of MCPKit.
 
 **Note:** For detailed documentation, examples, and guides, visit **[mcpkit.sh](https://mcpkit.sh)**
 
@@ -116,7 +116,7 @@ Within the repo, run:
 npm install && npm run build && npm link
 ```
 
-Now you can run a local instance of mcpkit for testing.
+Now you can run a local instance of MCPKit for testing.
 
 ## License
 

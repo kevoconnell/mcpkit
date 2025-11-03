@@ -1,7 +1,7 @@
 {
   "name": "mcp-stagehand-docs_stagehand_dev",
   "version": "1.0.0",
-  "description": "MCP server for docs.stagehand.dev using Stagehand browser automation",
+  "description": "MCP server for docs.stagehand.dev using Stagehand",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -9,7 +9,11 @@
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts"
   },
-  "keywords": ["mcp", "stagehand", "docs.stagehand.dev"],
+  "keywords": [
+    "mcp",
+    "stagehand",
+    "docs.stagehand.dev"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {

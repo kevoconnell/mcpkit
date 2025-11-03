@@ -4,7 +4,7 @@ description: "Generate MCP servers for any website"
 icon: "wand-magic-sparkles"
 ---
 
-The `create` command is the core of mcpkit. It analyzes a website and generates a complete MCP server with tools for interacting with that site.
+The `create` command is the core of MCPKit. It analyzes a website and generates a complete MCP server with tools for interacting with that site.
 
 ## Usage
 
@@ -56,7 +56,7 @@ mcpkit create https://example.com --skip-auth
 
 <Steps>
   <Step title="URL Validation">
-    mcpkit validates the provided URL and extracts the domain name.
+    MCPKit validates the provided URL and extracts the domain name.
 
     ```
     🔨 MCP Server Generator
@@ -90,7 +90,7 @@ mcpkit create https://example.com --skip-auth
   </Step>
 
   <Step title="Action Discovery">
-    mcpkit uses AI to analyze the page and discover available actions:
+    MCPKit uses AI to analyze the page and discover available actions:
 
     ```
     🔍 Discovering actions...
@@ -112,7 +112,7 @@ mcpkit create https://example.com --skip-auth
   </Step>
 
   <Step title="Schema Generation">
-    For each discovered action, mcpkit generates:
+    For each discovered action, MCPKit generates:
     - Tool name and description
     - Input parameters with types
     - Zod validation schemas
@@ -335,7 +335,7 @@ DEBUG=mcpkit:* mcpkit create https://example.com
 
 <AccordionGroup>
   <Accordion title="No actions discovered" icon="magnifying-glass">
-    If mcpkit doesn't find any actions:
+    If MCPKit doesn't find any actions:
 
     1. **Try a more specific URL** - Navigate to a specific page with clear actions
        ```bash

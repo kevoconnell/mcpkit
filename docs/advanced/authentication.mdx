@@ -4,15 +4,15 @@ description: "Advanced guide to handling authentication in MCPKit generated MCP 
 icon: "lock"
 ---
 
-Learn how mcpkit handles authentication, manages browser contexts, and secures your credentials.
+Learn how MCPKit handles authentication, manages browser contexts, and secures your credentials.
 
 ## How Authentication Works
 
-mcpkit uses Browserbase's persistent context feature to save and reuse authentication sessions:
+MCPKit uses Browserbase's persistent context feature to save and reuse authentication sessions:
 
 <Steps>
   <Step title="Initial Authentication">
-    When you first create an MCP server for an authenticated site, mcpkit opens a live browser session where you can log in normally.
+    When you first create an MCP server for an authenticated site, MCPKit opens a live browser session where you can log in normally.
   </Step>
 
   <Step title="Context Storage">
@@ -153,7 +153,7 @@ Many modern tools use OAuth or SSO:
 ```bash
 mcpkit create https://mcpkit.sh
 # Opens browser -> Login with Google/GitHub
-# mcpkit saves the resulting session
+# MCPKit saves the resulting session
 ```
 
 **Supported:**
@@ -172,7 +172,7 @@ Traditional login forms:
 mcpkit create https://oldschool-tool.com
 # Opens browser -> Enter username/password
 # Complete any 2FA if required
-# mcpkit saves session
+# MCPKit saves session
 ```
 
 ### API Keys
@@ -195,7 +195,7 @@ const response = await fetch("https://api.example.com/data", {
 
 ### Multi-Factor Authentication (2FA)
 
-mcpkit fully supports 2FA:
+MCPKit fully supports 2FA:
 
 ```bash
 mcpkit create https://secure-app.com

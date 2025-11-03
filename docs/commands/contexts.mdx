@@ -1,5 +1,5 @@
 ---
-title: "mcpkit contexts"
+title: "contexts"
 description: "Manage saved authentication contexts"
 icon: "database"
 ---
@@ -41,6 +41,7 @@ mcpkit contexts list
 ```
 
 Output:
+
 ```
 Saved Authentication Contexts
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -65,6 +66,7 @@ mcpkit contexts show mcpkit.sh
 ```
 
 Output:
+
 ```
 Context: mcpkit.sh
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -88,6 +90,7 @@ mcpkit contexts create mcpkit.sh
 ```
 
 This will:
+
 1. Launch a live browser session
 2. Navigate to the domain
 3. Wait for you to complete authentication
@@ -115,12 +118,14 @@ mcpkit contexts delete mcpkit.sh
 ```
 
 Output:
+
 ```
 ✓ Context for mcpkit.sh deleted successfully
 ```
 
 <Warning>
-  This action cannot be undone. You'll need to authenticate again to create a new context.
+  This action cannot be undone. You'll need to authenticate again to create a
+  new context.
 </Warning>
 
 ## How Contexts Work
@@ -147,6 +152,7 @@ Authentication contexts store browser state to avoid repeated logins:
     ```
 
     Each file contains the serialized browser context.
+
   </Step>
 
   <Step title="Context Reuse">
@@ -157,6 +163,7 @@ Authentication contexts store browser state to avoid repeated logins:
     ```
 
     The saved context is loaded, so you don't need to log in again.
+
   </Step>
 
   <Step title="Context Expiry">
@@ -207,7 +214,8 @@ Context files are JSON containing browser state:
 ```
 
 <Warning>
-  Context files contain sensitive authentication data. Never share these files or commit them to version control.
+  Context files contain sensitive authentication data. Never share these files
+  or commit them to version control.
 </Warning>
 
 ## Use Cases
@@ -253,22 +261,24 @@ cp ~/shared/internal-tool.com.json ~/.mcpkit/contexts/
 ```
 
 <Warning>
-  Only share contexts for authorized internal tools where you have permission. Never share personal account contexts.
+  Only share contexts for authorized internal tools where you have permission.
+  Never share personal account contexts.
 </Warning>
 
 ## Domain Matching
 
 Contexts are matched by domain name:
 
-| URL | Matched Context |
-|-----|----------------|
-| `https://mcpkit.sh` | `mcpkit.sh` |
-| `https://www.mcpkit.sh` | `mcpkit.sh` (or `www.mcpkit.sh` if exists) |
-| `https://app.mcpkit.sh` | `mcpkit.sh` (or `app.mcpkit.sh` if exists) |
-| `https://mcpkit.sh/team/issue-123` | `mcpkit.sh` |
+| URL                                | Matched Context                            |
+| ---------------------------------- | ------------------------------------------ |
+| `https://mcpkit.sh`                | `mcpkit.sh`                                |
+| `https://www.mcpkit.sh`            | `mcpkit.sh` (or `www.mcpkit.sh` if exists) |
+| `https://app.mcpkit.sh`            | `mcpkit.sh` (or `app.mcpkit.sh` if exists) |
+| `https://mcpkit.sh/team/issue-123` | `mcpkit.sh`                                |
 
 <Info>
-  mcpkit normalizes domains by removing `www.` and subdomains to find the base domain context.
+  mcpkit normalizes domains by removing `www.` and subdomains to find the base
+  domain context.
 </Info>
 
 ## Security Considerations
@@ -276,6 +286,7 @@ Contexts are matched by domain name:
 ### What's Stored
 
 Contexts contain:
+
 - ✅ Session cookies
 - ✅ Authentication tokens
 - ✅ Local storage data
@@ -321,13 +332,14 @@ chmod 600 ~/.mcpkit/contexts/*.json
 
     2. **Check domain spelling:**
        ```bash
-       mcpkit contexts show mcpkit.sh  # Not linear.io
+       mcpkit contexts show mcpkit.sh
        ```
 
     3. **Create new context:**
        ```bash
        mcpkit contexts create mcpkit.sh
        ```
+
   </Accordion>
 
   <Accordion title="Context Invalid or Expired" icon="clock">
@@ -342,6 +354,7 @@ chmod 600 ~/.mcpkit/contexts/*.json
     2. **Check website session policies** - Some sites expire sessions quickly
 
     3. **Verify you're still logged in** to the website manually
+
   </Accordion>
 
   <Accordion title="Authentication Fails During Creation" icon="lock">
@@ -354,6 +367,7 @@ chmod 600 ~/.mcpkit/contexts/*.json
        - Open the site in a normal browser
        - Log in completely
        - Then run `mcpkit contexts create`
+
   </Accordion>
 
   <Accordion title="Can't Delete Context" icon="trash">
@@ -373,6 +387,7 @@ chmod 600 ~/.mcpkit/contexts/*.json
        ```bash
        mcpkit contexts list
        ```
+
   </Accordion>
 </AccordionGroup>
 
@@ -434,21 +449,17 @@ tar -xzf mcpkit-contexts.tar.gz -C ~/.mcpkit
     Use saved contexts to generate servers
   </Card>
 
-  <Card
-    title="Authentication Guide"
-    icon="lock"
-    href="/advanced/authentication"
-  >
-    Learn more about authentication handling
-  </Card>
+{" "}
 
-  <Card
-    title="Examples"
-    icon="book"
-    href="/examples/overview"
-  >
-    See example workflows using contexts
-  </Card>
+<Card title="Authentication Guide" icon="lock" href="/advanced/authentication">
+  Learn more about authentication handling
+</Card>
+
+{" "}
+
+<Card title="Examples" icon="book" href="/examples/overview">
+  See example workflows using contexts
+</Card>
 
   <Card
     title="Secrets Management"

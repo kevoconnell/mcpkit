@@ -62,26 +62,26 @@ User: Search Hacker News for articles about AI safety
 AI: [Uses search_articles tool with query "AI safety"]
 ```
 
-### 2. Linear (Authentication Required)
+### 2. Substack (Content Platform)
 
-Generate an MCP server for Linear project management:
+Generate an MCP server for Substack newsletter platform:
 
 ```bash
-mcpkit create https://mcpkit.sh
+mcpkit create https://substack.com
 ```
 
 **What you can do:**
 
-- Create and update issues
-- Search issues and projects
-- Assign tasks to team members
-- Update issue statuses
+- Search for publications by topic
+- Read newsletter posts
+- Browse trending content
+- View author profiles
 
 **Example usage:**
 
 ```
-User: Create a new high-priority bug for the login page
-AI: [Uses create_issue tool with title, description, and priority]
+User: Find tech newsletters about AI and show me their latest posts
+AI: [Uses search_publications and read_post tools]
 ```
 
 ### 3. GitHub (Public + Private)
@@ -127,15 +127,14 @@ mcpkit create https://reddit.com
 Automate your workflow across tools:
 
 ```bash
-# Set up Linear and GitHub
+# Set up authenticated sites
 mcpkit contexts create mcpkit.sh
 mcpkit contexts create github.com
 
 mcpkit create https://mcpkit.sh --skip-auth
 mcpkit create https://github.com --skip-auth
 
-# Then ask Claude to:
-# "Create a Linear issue for each open GitHub issue with the 'bug' label"
+# Then ask Claude to automate workflows across platforms
 ```
 
 ### Content Curation
@@ -154,20 +153,20 @@ mcpkit create https://dev.to
 ## Featured Examples
 
 <AccordionGroup>
-  <Accordion title="Linear - Project Management" icon="clipboard-check">
-    **Type:** Authenticated, SaaS
+  <Accordion title="Substack - Newsletter Platform" icon="envelope">
+    **Type:** Public + Authenticated (for premium content)
 
-    **Use Case:** Issue tracking, sprint planning, team collaboration
+    **Use Case:** Content discovery, newsletter aggregation, research
 
     **Key Features:**
-    - Create and update issues
-    - Manage sprints and projects
-    - Search and filter issues
-    - Team member assignment
+    - Search publications by topic
+    - Read posts and articles
+    - Browse trending content
+    - View author profiles
 
-    **Authentication:** Required (OAuth or email/password)
+    **Authentication:** Optional (required for subscriber-only content)
 
-    [View Full Example →](/examples/linear)
+    [View Full Example →](/examples/substack)
 
   </Accordion>
 
@@ -259,9 +258,9 @@ npx @modelcontextprotocol/inspector node dist/index.js
 
 Use multiple MCP servers together for powerful workflows:
 
-- Research: HN + Reddit + Twitter
-- Development: GitHub + Linear + Stack Overflow
-- Content: Medium + Dev.to + Hashnode
+- Research: HN + Reddit + Substack
+- Development: GitHub + Stack Overflow + Dev.to
+- Content: Medium + Substack + Hashnode
 
 ### 5. Customize Generated Code
 
@@ -311,7 +310,7 @@ Each example includes troubleshooting tips. If you run into issues:
   <Card
     title="GitHub Discussions"
     icon="github"
-    href="https://github.com/kevinoconnell/mcpkit/discussions"
+    href="https://github.com/kevoconnell/mcpkit/discussions"
   >
     Share your examples and get feedback
   </Card>

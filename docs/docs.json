@@ -34,14 +34,6 @@
             ]
           },
           {
-            "group": "Using with AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
-            ]
-          },
-          {
             "group": "Advanced",
             "pages": [
               "advanced/authentication",
@@ -51,26 +43,7 @@
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "GitHub",
-          "href": "https://github.com/kevinoconnell/mcpkit",
-          "icon": "github"
-        },
-        {
-          "anchor": "Discord",
-          "href": "https://discord.gg/ASQJAxzM",
-          "icon": "discord"
-        },
-        {
-          "anchor": "NPM Package",
-          "href": "https://www.npmjs.com/package/mcpkit",
-          "icon": "box"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/logo/light.svg",
@@ -80,14 +53,20 @@
     "links": [
       {
         "label": "GitHub",
-        "href": "https://github.com/kevinoconnell/mcpkit"
+        "href": "https://github.com/kevoconnell/mcpkit",
+        "icon": "github"
+      },
+      {
+        "label": "Discord",
+        "href": "https://discord.gg/ASQJAxzM",
+        "icon": "discord"
+      },
+      {
+        "label": "NPM",
+        "href": "https://www.npmjs.com/package/mcpkit",
+        "icon": "box"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Get Started",
-      "href": "/quickstart"
-    }
+    ]
   },
   "contextual": {
     "options": [
@@ -103,7 +82,7 @@
   },
   "footer": {
     "socials": {
-      "github": "https://github.com/kevinoconnell/mcpkit"
+      "github": "https://github.com/kevoconnell/mcpkit"
     }
   }
 }

@@ -1,5 +1,5 @@
 ---
-title: "mcpkit create"
+title: "create"
 description: "Generate MCP servers for any website"
 icon: "wand-magic-sparkles"
 ---
@@ -117,7 +117,7 @@ mcpkit create https://example.com --skip-auth
     // Generated tool example
     {
       name: "create_issue",
-      description: "Create a new issue in Linear",
+      description: "Create a new issue",
       inputSchema: {
         type: "object",
         properties: {
@@ -168,7 +168,7 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
 const server = new Server({
-  name: "linear-mcp-server",
+  name: "hackernews-mcp-server",
   version: "1.0.0"
 }, {
   capabilities: {

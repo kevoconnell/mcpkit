@@ -239,6 +239,11 @@ const GetTopNUsersArgsSchema = z.object({
     ),
 });
 
+const ExecuteActionArgsSchema = z.object({
+  instruction: z.string().min(1),
+  maxSteps: z.number().optional().default(10),
+});
+
 const JoinLeaderboardArgsSchema = z.object({});
 
 const ViewUserProfileArgsSchema = z.object({
@@ -272,6 +277,27 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           type: "object",
           properties: {},
           required: [],
+        },
+      },
+      {
+        name: "execute_action",
+        description:
+          "Use an AI agent to execute any action on the current page. The agent can perform multi-step tasks, click elements, fill forms, navigate, etc.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            instruction: {
+              type: "string",
+              description:
+                "Natural language instruction for what action to perform (e.g., 'Click on the first post about AI', 'Find and click the share button', 'Navigate to settings and enable notifications')",
+            },
+            maxSteps: {
+              type: "number",
+              description:
+                "Maximum number of steps the agent can take (default: 10)",
+            },
+          },
+          required: ["instruction"],
         },
       },
       {
@@ -389,6 +415,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
           GetLeaderboardDataResponseSchema
         );
 
+        const screenshot = await page.screenshot({ fullPage: true });
+        screenshotBase64 = screenshot.toString("base64");
+        break;
+      }
+
+      case "execute_action": {
+        const args = ExecuteActionArgsSchema.parse(request.params.arguments);
+        const agent = stagehand.agent({
+          systemPrompt: `you are a helpful assistant that can use a web browser to navigate around ${TARGET_URL}.`,
+        });
+        result = await agent.execute({
+          instruction: args.instruction,
+          maxSteps: args.maxSteps,
+        });
         const screenshot = await page.screenshot({ fullPage: true });
         screenshotBase64 = screenshot.toString("base64");
         break;

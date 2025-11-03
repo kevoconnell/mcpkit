@@ -217,6 +217,11 @@ const SearchPostsArgsSchema = z.object({
   query: z.string().min(1),
 });
 
+const ExecuteActionArgsSchema = z.object({
+  instruction: z.string().min(1),
+  maxSteps: z.number().optional().default(10),
+});
+
 const SubmitPostArgsSchema = z.object({
   title: z.string().min(1),
   url: z.string().optional(),
@@ -376,6 +381,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             article_content: "text content of the article page",
           } as any
         );
+
+        const screenshot = await page.screenshot({ fullPage: true });
+        screenshotBase64 = screenshot.toString("base64");
+        break;
+      }
+      case "execute_action": {
+        const args = ExecuteActionArgsSchema.parse(request.params.arguments);
+        const agent = stagehand.agent({
+          systemPrompt: `you are a helpful assistant that can use a web browser to navigate around ${TARGET_URL}.`,
+        });
+        result = await agent.execute({
+          instruction: args.instruction,
+          maxSteps: args.maxSteps,
+        });
 
         const screenshot = await page.screenshot({ fullPage: true });
         screenshotBase64 = screenshot.toString("base64");

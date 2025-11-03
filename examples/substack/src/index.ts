@@ -282,6 +282,11 @@ const ReadPostArgsSchema = z.object({
   postTitle: z.string().min(1).describe("The full title of the post to read."),
 });
 
+const ExecuteActionArgsSchema = z.object({
+  instruction: z.string().min(1),
+  maxSteps: z.number().optional().default(10),
+});
+
 // Define Zod schemas for extraction
 const SearchResultsExtractionSchema = z.object({
   results: z
@@ -333,6 +338,27 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
           },
           required: ["query"],
+        },
+      },
+      {
+        name: "execute_action",
+        description:
+          "Use an AI agent to execute any action on the current page. The agent can perform multi-step tasks, click elements, fill forms, navigate, etc.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            instruction: {
+              type: "string",
+              description:
+                "Natural language instruction for what action to perform (e.g., 'Click on the first post about AI', 'Find and click the share button', 'Navigate to settings and enable notifications')",
+            },
+            maxSteps: {
+              type: "number",
+              description:
+                "Maximum number of steps the agent can take (default: 10)",
+            },
+          },
+          required: ["instruction"],
         },
       },
       {
@@ -541,6 +567,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           "Extract an array of objects with title, author (if present), url, and a short description for each post/publication listed in the search results.",
           SearchResultsExtractionSchema
         );
+        break;
+      }
+
+      case "execute_action": {
+        const args = ExecuteActionArgsSchema.parse(request.params.arguments);
+        const agent = stagehand.agent({
+          systemPrompt: `you are a helpful assistant that can use a web browser to navigate around ${TARGET_URL}.`,
+        });
+        result = await agent.execute({
+          instruction: args.instruction,
+          maxSteps: args.maxSteps,
+        });
+
         break;
       }
 

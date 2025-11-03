@@ -143,9 +143,26 @@ EXPLORATION STRATEGY - TAKE YOUR TIME AND BE THOROUGH:
 
 DO NOT RUSH - Use your available steps to thoroughly understand the website. Quality over speed.
 
-CRITICAL: You MUST respond with ONLY valid JSON in this EXACT format, with no additional text:
+========================================================================
+CRITICAL OUTPUT FORMAT REQUIREMENT - READ THIS CAREFULLY
+========================================================================
 
+You MUST respond with ONLY valid JSON. NO explanatory text, NO commentary, NO markdown formatting.
+Your ENTIRE response must be ONLY the JSON object starting with { and ending with }.
+
+DO NOT write things like "I have completed..." or "Here is the JSON..." or any other text.
+Your response should be PURE JSON that can be directly parsed by JSON.parse().
+
+CORRECT FORMAT:
 ${exampleJSON}
+
+INCORRECT FORMATS (DO NOT DO THIS):
+- "I have completed the exploration. Here is the JSON: {...}"
+- "\`\`\`json\\n{...}\\n\`\`\`"
+- "Based on my exploration, I found: {...}"
+
+START YOUR RESPONSE WITH { AND END WITH } - NOTHING ELSE.
+========================================================================
 
 IMPORTANT REQUIREMENTS:
 - ALWAYS include a "get_page_info" action as the FIRST action (with empty parameters and steps arrays)
@@ -231,6 +248,25 @@ Return ONLY the JSON object, no additional text.`,
     jsonString = jsonString.replace(/^```json\s*/i, "").replace(/^```\s*/, "");
     jsonString = jsonString.replace(/\s*```$/, "");
     jsonString = jsonString.trim();
+
+    if (!jsonString.startsWith("{")) {
+      console.log(
+        "⚠️  Agent response doesn't start with JSON, attempting to extract..."
+      );
+
+      const jsonMatch = jsonString.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        jsonString = jsonMatch[0];
+        console.log("✓ Found JSON object in response");
+      } else {
+        throw new Error(
+          `Agent returned non-JSON response. Response started with: "${jsonString.substring(
+            0,
+            100
+          )}..."`
+        );
+      }
+    }
 
     // Parse the cleaned JSON
     const parsed = JSON.parse(jsonString);

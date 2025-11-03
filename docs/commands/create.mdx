@@ -15,7 +15,8 @@ mcpkit create <url> [options]
 ### Arguments
 
 <ParamField path="url" type="string" required>
-  The URL of the website to create an MCP server for. Must be a valid HTTP or HTTPS URL.
+  The URL of the website to create an MCP server for. Must be a valid HTTP or
+  HTTPS URL.
 </ParamField>
 
 ### Options
@@ -61,6 +62,7 @@ mcpkit create https://example.com --skip-auth
     🔨 MCP Server Generator
     📍 Analyzing: https://mcpkit.sh
     ```
+
   </Step>
 
   <Step title="Browser Session">
@@ -69,6 +71,7 @@ mcpkit create https://example.com --skip-auth
     <Info>
       The browser runs in the cloud, so you don't need Chrome installed locally.
     </Info>
+
   </Step>
 
   <Step title="Authentication (Optional)">
@@ -83,6 +86,7 @@ mcpkit create https://example.com --skip-auth
     ```
 
     Your authentication context (cookies, session data) will be saved for future use.
+
   </Step>
 
   <Step title="Action Discovery">
@@ -104,6 +108,7 @@ mcpkit create https://example.com --skip-auth
     - Page structure and navigation
     - Common workflows and patterns
     - API endpoints (if available)
+
   </Step>
 
   <Step title="Schema Generation">
@@ -132,6 +137,7 @@ mcpkit create https://example.com --skip-auth
       }
     }
     ```
+
   </Step>
 
   <Step title="Server Generation">
@@ -154,6 +160,7 @@ mcpkit create https://example.com --skip-auth
     <Check>
       Your MCP server is ready to use!
     </Check>
+
   </Step>
 </Steps>
 
@@ -167,20 +174,23 @@ The generated MCP server includes:
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
-const server = new Server({
-  name: "hackernews-mcp-server",
-  version: "1.0.0"
-}, {
-  capabilities: {
-    tools: {}
+const server = new Server(
+  {
+    name: "hackernews-mcp-server",
+    version: "1.0.0",
+  },
+  {
+    capabilities: {
+      tools: {},
+    },
   }
-});
+);
 
 // Tool handlers
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
     // Generated tools
-  ]
+  ],
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -258,6 +268,7 @@ The AI model used for action discovery can be configured in your `~/.mcpkit/secr
 ```
 
 Supported providers:
+
 - `google` - Gemini models (recommended)
 - `openai` - GPT models
 - `anthropic` - Claude models
@@ -286,6 +297,7 @@ DEBUG=mcpkit:* mcpkit create https://example.com
     npm install && npm run build
     npx @modelcontextprotocol/inspector node dist/index.js
     ```
+
   </Tab>
 
   <Tab title="Authenticated Website">
@@ -299,6 +311,7 @@ DEBUG=mcpkit:* mcpkit create https://example.com
     # Context is saved, regenerate without auth:
     mcpkit create https://mcpkit.sh --skip-auth
     ```
+
   </Tab>
 
   <Tab title="Internal Tool">
@@ -314,6 +327,7 @@ DEBUG=mcpkit:* mcpkit create https://example.com
     <Warning>
       Ensure you have permission to automate interactions with internal tools.
     </Warning>
+
   </Tab>
 </Tabs>
 
@@ -336,6 +350,7 @@ DEBUG=mcpkit:* mcpkit create https://example.com
        ```
 
     3. **Check the website is accessible** - Make sure it's not behind a firewall or paywall
+
   </Accordion>
 
   <Accordion title="Authentication fails" icon="lock">
@@ -348,6 +363,7 @@ DEBUG=mcpkit:* mcpkit create https://example.com
        ```bash
        mcpkit contexts create example.com
        ```
+
   </Accordion>
 
   <Accordion title="Generated server doesn't work" icon="bug">
@@ -361,6 +377,7 @@ DEBUG=mcpkit:* mcpkit create https://example.com
        mcpkit contexts delete example.com
        mcpkit create https://example.com
        ```
+
   </Accordion>
 </AccordionGroup>
 
@@ -375,27 +392,14 @@ DEBUG=mcpkit:* mcpkit create https://example.com
     Learn how to manage authentication contexts
   </Card>
 
-  <Card
-    title="Configure Secrets"
-    icon="key"
-    href="/commands/secrets"
-  >
-    Update your API keys and settings
-  </Card>
+{" "}
+<Card title="Configure Secrets" icon="key" href="/commands/secrets">
+  Update your API keys and settings
+</Card>
 
-  <Card
-    title="View Examples"
-    icon="book"
-    href="/examples/overview"
-  >
-    See example generated servers
-  </Card>
+{" "}
+<Card title="View Examples" icon="book" href="/examples/overview">
+  See example generated servers
+</Card>
 
-  <Card
-    title="Custom Tools"
-    icon="screwdriver-wrench"
-    href="/advanced/custom-tools"
-  >
-    Customize generated tools
-  </Card>
 </CardGroup>

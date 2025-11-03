@@ -5,12 +5,12 @@ description: "Generate MCP servers for any website with AI-powered browser autom
 
 <img
   className="block dark:hidden rounded-xl"
-  src="/images/hero-light.png"
+  src="/images/hero-light.svg"
   alt="mcpkit hero image"
 />
 <img
   className="hidden dark:block rounded-xl"
-  src="/images/hero-dark.png"
+  src="/images/hero-dark.svg"
   alt="mcpkit hero image"
 />
 
@@ -19,28 +19,17 @@ description: "Generate MCP servers for any website with AI-powered browser autom
 **mcpkit** is a CLI tool that generates [Model Context Protocol (MCP)](https://modelcontextprotocol.io) servers for any website using [Stagehand](https://github.com/browserbase/stagehand) browser automation. With mcpkit, you can give any AI assistant the ability to interact with websites through natural language.
 
 <CardGroup cols={2}>
-  <Card
-    title="Generate MCP Servers"
-    icon="wand-magic-sparkles"
-  >
+  <Card title="Generate MCP Servers" icon="wand-magic-sparkles">
     Automatically create MCP servers by analyzing any website's functionality
   </Card>
-  <Card
-    title="Powered by Browserbase"
-    icon="browser"
-  >
-    Run browser automation anywhere with just an API key - no local browser required
+  <Card title="Powered by Browserbase" icon="browser">
+    Run browser automation anywhere with just an API key - no local browser
+    required
   </Card>
-  <Card
-    title="AI-Powered Discovery"
-    icon="robot"
-  >
+  <Card title="AI-Powered Discovery" icon="robot">
     Automatically detect and document website actions using AI
   </Card>
-  <Card
-    title="Authentication Handling"
-    icon="lock"
-  >
+  <Card title="Authentication Handling" icon="lock">
     Save and reuse authentication contexts across sessions
   </Card>
 </CardGroup>
@@ -56,14 +45,10 @@ Get up and running in minutes:
     ```
   </Step>
 
-  <Step title="Set up credentials">
-    ```bash
-    mcpkit secrets
-    ```
-    You'll need:
-    - Browserbase API key ([get one here](https://www.browserbase.com))
-    - LLM API key (Gemini, OpenAI, etc.)
-  </Step>
+<Step title="Set up credentials">
+  ```bash mcpkit secrets ``` You'll need: - Browserbase API key ([get one
+  here](https://www.browserbase.com)) - LLM API key (Gemini, OpenAI, etc.)
+</Step>
 
   <Step title="Create your first MCP server">
     ```bash
@@ -72,11 +57,7 @@ Get up and running in minutes:
   </Step>
 </Steps>
 
-<Card
-  title="Full Quickstart Guide"
-  icon="rocket"
-  href="/quickstart"
->
+<Card title="Full Quickstart Guide" icon="rocket" href="/quickstart">
   Follow our detailed quickstart guide to create your first MCP server
 </Card>
 
@@ -96,13 +77,19 @@ mcpkit uses AI to:
     Generate MCP servers for Jira, Asana, ClickUp, or other project management tools to let AI assistants create tasks, update issues, and manage projects.
   </Accordion>
 
-  <Accordion title="Content Platforms" icon="newspaper">
-    Create servers for content sites like Hacker News, Reddit, or Medium to enable AI-powered content discovery and interaction.
-  </Accordion>
+{" "}
 
-  <Accordion title="Internal Tools" icon="building">
-    Build MCP servers for your company's internal web applications to automate workflows and improve productivity.
-  </Accordion>
+<Accordion title="Content Platforms" icon="newspaper">
+  Create servers for content sites like Hacker News, Reddit, or Medium to enable
+  AI-powered content discovery and interaction.
+</Accordion>
+
+{" "}
+
+<Accordion title="Internal Tools" icon="building">
+  Build MCP servers for your company's internal web applications to automate
+  workflows and improve productivity.
+</Accordion>
 
   <Accordion title="Research & Monitoring" icon="magnifying-glass">
     Generate servers for data sources, dashboards, or monitoring tools to help AI assistants gather and analyze information.
@@ -114,6 +101,7 @@ mcpkit uses AI to:
 ### AI-Powered Action Discovery
 
 mcpkit automatically discovers what actions are possible on a website by:
+
 - Analyzing page structure and interactive elements
 - Understanding navigation patterns
 - Identifying common workflows
@@ -137,6 +125,7 @@ mcpkit contexts delete mcpkit.sh
 ### Flexible MCP Servers
 
 Generated servers include:
+
 - Complete MCP tool definitions
 - Type-safe schemas with Zod validation
 - Authentication handling
@@ -174,21 +163,17 @@ mcpkit is built on:
     Create your first MCP server in minutes
   </Card>
 
-  <Card
-    title="CLI Commands"
-    icon="terminal"
-    href="/commands/create"
-  >
-    Learn about all available commands
-  </Card>
+{" "}
 
-  <Card
-    title="Examples"
-    icon="book"
-    href="/examples/overview"
-  >
-    See example MCP servers
-  </Card>
+<Card title="CLI Commands" icon="terminal" href="/commands/create">
+  Learn about all available commands
+</Card>
+
+{" "}
+
+<Card title="Examples" icon="book" href="/examples/overview">
+  See example MCP servers
+</Card>
 
   <Card
     title="Use with Claude Code"

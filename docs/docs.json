@@ -40,11 +40,7 @@
           },
           {
             "group": "Advanced",
-            "pages": [
-              "advanced/authentication",
-              "advanced/custom-tools",
-              "development"
-            ]
+            "pages": ["advanced/authentication", "development"]
           }
         ]
       }

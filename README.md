@@ -4,7 +4,7 @@
 
 ## What is mcpkit?
 
-**mcpkit** is a CLI tool that automatically generates MCP servers for any website using AI-powered browser automation. It handles authentication discovery, context management, and server generation - making it easy to create MCP servers for any web application without manual coding.
+**mcpkit** is a CLI tool that generates [Stagehand](https://github.com/browserbase/stagehand) for any website.
 
 ## Quick Start
 
@@ -16,7 +16,7 @@ npm install -g mcpkit
 
 ### Setup
 
-Set up your Browserbase API key and secrets:
+Set up your Browserbase API key and llm model secrets:
 ```bash
 mcpkit secrets
 ```
@@ -30,6 +30,7 @@ mcpkit create https://linear.app
 # Or use interactive mode
 mcpkit create
 ```
+At some point in the above, you will be prompted to sign in via a Browserbase session.
 
 ## CLI Commands
 
@@ -63,7 +64,7 @@ mcpkit contexts create linear.app
 ```
 
 ### `mcpkit secrets`
-Set up and manage secrets for authentication
+Set up and manage secrets for browserbase, as well as your model of choice
 
 **Examples:**
 ```bash
@@ -85,11 +86,6 @@ After running `mcpkit create`, test your generated server:
 cd mcp-stagehand-{domain}/
 ```
 
-2. Install dependencies and build:
-```bash
-npm install && npm run build
-```
-
 3. Test with the MCP Inspector:
 ```bash
 npx @modelcontextprotocol/inspector node dist/index.js
@@ -98,6 +94,14 @@ npx @modelcontextprotocol/inspector node dist/index.js
 You should see a screen like this:
 
 ![Hacker News MCP Example](HNMCP.png)
+
+Alternatively, you can install into claude code with
+
+```bash
+claude mcp add --transport stdio "your-mcp-name-here" -- node dist/index.js
+```
+
+
 
 ## Contributing
 

@@ -1,5 +1,9 @@
-import { Stagehand } from '@browserbasehq/stagehand';
-import { AuthAnalysis, AuthAnalysisSchema, StagehandPage } from '../schemas/index.js';
+import { Stagehand } from "@browserbasehq/stagehand";
+import {
+  AuthAnalysis,
+  AuthAnalysisSchema,
+  StagehandPage,
+} from "../schemas/index.js";
 
 /**
  * Analyze the authentication state of the current page
@@ -33,7 +37,7 @@ Return a complete analysis following the schema.`,
       summary:
         error instanceof Error
           ? `Heuristic result after extract error: ${error.message}`
-          : 'Heuristic result after extract error.',
+          : "Heuristic result after extract error.",
     };
   }
 }
@@ -41,7 +45,10 @@ Return a complete analysis following the schema.`,
 /**
  * Log authentication analysis details
  */
-export function logAuthenticationAnalysis(analysis: AuthAnalysis, domain: string) {
+export function logAuthenticationAnalysis(
+  analysis: AuthAnalysis,
+  domain: string
+) {
   const summary = analysis.summary ?? `Sign-in required for ${domain}.`;
   console.log(`🔐 Login flow detected: ${summary}`);
 
@@ -50,14 +57,14 @@ export function logAuthenticationAnalysis(analysis: AuthAnalysis, domain: string
   }
 
   if (analysis.steps && analysis.steps.length > 0) {
-    console.log('   Suggested steps:');
+    console.log("   Suggested steps:");
     analysis.steps.forEach((step, index) => {
       console.log(`   ${index + 1}. ${step}`);
     });
   }
 
   if (analysis.blockers && analysis.blockers.length > 0) {
-    console.log('   Potential blockers:');
+    console.log("   Potential blockers:");
     analysis.blockers.forEach((blocker) => {
       console.log(`   - ${blocker}`);
     });
@@ -66,7 +73,7 @@ export function logAuthenticationAnalysis(analysis: AuthAnalysis, domain: string
   if (analysis.mfa?.required) {
     console.log(
       `   MFA required: ${
-        analysis.mfa.description ?? 'Complete MFA in the live session.'
+        analysis.mfa.description ?? "Complete MFA in the live session."
       }`
     );
   }

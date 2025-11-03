@@ -171,6 +171,7 @@ async function initStagehand(): Promise<Stagehand> {
   if (!stagehand) {
     // Extract domain from TARGET_URL
     const domain = new URL(TARGET_URL).hostname;
+    console.error(`🔍 Initializing Stagehand for domain: ${domain}`);
 
     // Get or create context ID
     const contextId = await getOrCreateContextId(domain);
@@ -192,10 +193,8 @@ async function initStagehand(): Promise<Stagehand> {
           : undefined,
       },
       model: {
-        modelName: "google/gemini-2.5-flash",
-        apiKey:
-          process.env.GEMINI_API_KEY ??
-          process.env.GOOGLE_GENERATIVE_AI_API_KEY!,
+        modelName: process.env.MODEL_PROVIDER || "google/gemini-2.5-flash",
+        apiKey: process.env.MODEL_API_KEY!,
       },
     });
     await stagehand.init();
@@ -690,12 +689,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           const fallbackResult = await stagehandInstance.extract(
             "Extract the URL or link to the newly published post that appears on this page"
           );
-          console.error(`🔍 Fallback extraction result:`, JSON.stringify(fallbackResult, null, 2));
+          console.error(
+            `🔍 Fallback extraction result:`,
+            JSON.stringify(fallbackResult, null, 2)
+          );
 
           // Set result to the fallback
           result = {
             link: fallbackResult.extraction || page.url(),
-            note: "Extracted using fallback method - link may need verification"
+            note: "Extracted using fallback method - link may need verification",
           };
         }
         break;
@@ -926,6 +928,8 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("substack_com MCP server running on stdio");
+  const stagehandInstance = await initStagehand();
+  console.error(`🔍 Stagehand initialized: ${stagehandInstance}`);
 }
 
 main().catch((error) => {

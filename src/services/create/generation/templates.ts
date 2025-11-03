@@ -1,23 +1,102 @@
 import type { DiscoveredAction } from "../schemas/index.js";
-
+import fs from "fs/promises";
+import os from "os";
 import path from "path";
+import dotenv from "dotenv";
+import { loadContextId } from "../../session/index.js";
 
 /**
- * Generate .env.example
+ * Generate .env.example template
  */
-export function generateEnvExample(domain: string): string {
+export async function generateEnvExample(domain: string): Promise<string> {
+  const contextId = await loadContextId(domain);
+
+  if (contextId) {
+    return `# Browserbase Configuration
+BROWSERBASE_PROJECT_ID=your_project_id_here
+BROWSERBASE_API_KEY=your_api_key_here
+
+# Saved browser context for ${domain}
+# This context stores your authentication and browser state
+BROWSERBASE_CONTEXT_ID=${contextId}
+
+# AI Model Configuration
+MODEL_API_KEY=your_model_api_key_here
+MODEL_PROVIDER=google/gemini-2.5-flash
+`;
+  }
+
   return `# Browserbase Configuration
-  BROWSERBASE_PROJECT_ID=your_project_id_here
-  BROWSERBASE_API_KEY=your_api_key_here
-  
-  # Optional: Use saved browser context for ${domain}
-  # Get this from: mcpkit contexts show ${domain}
-  # BROWSERBASE_CONTEXT_ID=your_context_id_here
-  
-  # AI Model Configuration (Gemini)
-  GEMINI_API_KEY=your_gemini_api_key_here
-  GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key_here
-  `;
+BROWSERBASE_PROJECT_ID=your_project_id_here
+BROWSERBASE_API_KEY=your_api_key_here
+
+# Optional: Use saved browser context for ${domain}
+# Get this from: mcpkit contexts show ${domain}
+# BROWSERBASE_CONTEXT_ID=your_context_id_here
+
+# AI Model Configuration
+MODEL_API_KEY=your_model_api_key_here
+MODEL_PROVIDER=google/gemini-2.5-flash
+`;
+}
+
+/**
+ * Generate .env file with values from global secrets
+ */
+export async function generateEnvFromGlobalSecrets(
+  domain: string
+): Promise<string> {
+  try {
+    const GLOBAL_ENV_PATH = path.join(os.homedir(), ".mcpkit", ".env");
+
+    // Read the global .env file
+    const globalEnvContent = await fs.readFile(GLOBAL_ENV_PATH, "utf-8");
+    const parsed = dotenv.parse(globalEnvContent);
+
+    // Extract the relevant keys
+    const browserbaseProjectId = parsed.BROWSERBASE_PROJECT_ID || "";
+    const browserbaseApiKey = parsed.BROWSERBASE_API_KEY || "";
+    const modelApiKey = parsed.MODEL_API_KEY || "";
+    const modelProvider = parsed.MODEL_PROVIDER || "google/gemini-2.5-flash";
+
+    // Load the context ID for this domain
+    const contextId = await loadContextId(domain);
+
+    // Generate .env content with actual values from global secrets
+    if (contextId) {
+      return `# Browserbase Configuration
+BROWSERBASE_PROJECT_ID=${browserbaseProjectId}
+BROWSERBASE_API_KEY=${browserbaseApiKey}
+
+# Saved browser context for ${domain}
+# This context stores your authentication and browser state
+BROWSERBASE_CONTEXT_ID=${contextId}
+
+# AI Model Configuration
+MODEL_API_KEY=${modelApiKey}
+MODEL_PROVIDER=${modelProvider}
+`;
+    }
+
+    return `# Browserbase Configuration
+BROWSERBASE_PROJECT_ID=${browserbaseProjectId}
+BROWSERBASE_API_KEY=${browserbaseApiKey}
+
+# Optional: Use saved browser context for ${domain}
+# Get this from: mcpkit contexts show ${domain}
+# BROWSERBASE_CONTEXT_ID=your_context_id_here
+
+# AI Model Configuration
+MODEL_API_KEY=${modelApiKey}
+MODEL_PROVIDER=${modelProvider}
+`;
+  } catch (error) {
+    // If we can't read global secrets, return the template
+    console.warn(
+      "⚠️  Could not read global secrets, .env file will use placeholders"
+    );
+    return generateEnvExample(domain);
+  }
 }
 
 /**
@@ -33,30 +112,25 @@ export function generateReadme(
     .join("\n");
 
   return `# MCP Server for ${domain}
-  
+
   This MCP server provides browser automation tools for ${domain} using Stagehand.
-  
+
   ## Available Tools
-  
+
   ${actionsList}
-  
+
   ## Setup
-  
+
   1. Install dependencies:
      \`\`\`bash
      npm install
      \`\`\`
-  
-  2. Create a \`.env\` file with your API keys:
-     \`\`\`bash
-     cp .env.example .env
-     \`\`\`
-  
-  3. Add your API keys to the \`.env\` file:
-     - Get a Browserbase API key from https://browserbase.com
-     - Get a Gemini API key from https://ai.google.dev
-  
-  4. (Optional) Use saved browser context with authentication:
+
+  2. Environment variables are already configured:
+     - A \`.env\` file has been created with values from your global mcpkit secrets
+     - A \`.env.example\` template is also available for reference
+
+  3. (Optional) Use saved browser context with authentication:
      - If you already authenticated to ${domain} using mcpkit, you can reuse that session:
      \`\`\`bash
      mcpkit contexts show ${domain}
@@ -92,13 +166,21 @@ export function generateReadme(
   npm run dev
   \`\`\`
   
+  ### Using with Claude Code
+
+  Add the MCP server to Claude Code:
+
+  \`\`\`bash
+  claude mcp add --transport stdio ${serviceName} -- node ${process.cwd()}/mcp-stagehand-${serviceName}/dist/index.js
+  \`\`\`
+
   ### Using with Claude Desktop
-  
+
   Add this to your Claude Desktop config file:
-  
+
   **MacOS**: \`~/Library/Application Support/Claude/claude_desktop_config.json\`
   **Windows**: \`%APPDATA%/Claude/claude_desktop_config.json\`
-  
+
   \`\`\`json
   {
     "mcpServers": {
@@ -152,7 +234,6 @@ export function generateTsConfig(): string {
  * Generic function to load an example MCP server file
  */
 async function loadExampleFile(exampleName: string): Promise<string> {
-  const fs = await import("fs/promises");
   const exampleFilePath = path.join(
     process.cwd(),
     "examples",
@@ -315,14 +396,33 @@ IMPORTANT - Tool Definitions:
 - Tool definitions should ONLY have:
   * name: string
   * description: string
-  * inputSchema: JSON Schema object (converted from Zod using zodSchemaToJsonSchema helper)
+  * inputSchema: JSON Schema object (NOT Zod schemas - use plain JSON Schema format)
 - DO NOT include outputSchema field - it causes validation errors in the MCP SDK
 - Example CORRECT tool definition:
   {
     name: "get_stories",
     description: "Get top stories from the site",
-    inputSchema: zodSchemaToJsonSchema(GetStoriesArgsSchema)
+    inputSchema: {
+      type: "object",
+      properties: {
+        numStories: {
+          type: "number",
+          description: "The number of stories to retrieve"
+        }
+      },
+      required: ["numStories"]
+    }
     // NO outputSchema field!
+  }
+- Example with no parameters:
+  {
+    name: "get_homepage",
+    description: "Get the homepage content",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      required: []
+    }
   }
 
 IMPORTANT - Response Format:

@@ -1,6 +1,6 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import {
   generateEnvExample,
+  generateEnvFromGlobalSecrets,
   generateFixBuildErrorsPrompt,
   generateMCPServerCodePrompt,
   generatePackageJson,
@@ -10,6 +10,8 @@ import {
 import { DiscoveredAction } from "../schemas/index.js";
 import fs from "fs/promises";
 import path from "path";
+import { generateText } from "ai";
+import { getModel } from "../../../initalizers/llm/index.js";
 
 /**
  * Generate all MCP server files
@@ -33,7 +35,8 @@ export async function generateMCPServerCode(
 
   // Generate static template files
   const packageJson = generatePackageJson(serviceName);
-  const envExample = generateEnvExample(domain);
+  const envExample = await generateEnvExample(domain);
+  const envFile = await generateEnvFromGlobalSecrets(domain);
   const readme = generateReadme(serviceName, domain, actions);
   const tsconfig = generateTsConfig();
 
@@ -41,8 +44,11 @@ export async function generateMCPServerCode(
   await fs.writeFile(path.join(outputDir, "src", "index.ts"), serverCode);
   await fs.writeFile(path.join(outputDir, "package.json"), packageJson);
   await fs.writeFile(path.join(outputDir, ".env.example"), envExample);
+  await fs.writeFile(path.join(outputDir, ".env"), envFile);
   await fs.writeFile(path.join(outputDir, "README.md"), readme);
   await fs.writeFile(path.join(outputDir, "tsconfig.json"), tsconfig);
+
+  console.log("✅ Created .env file with values from global secrets");
 
   return serverCode;
 }
@@ -55,11 +61,7 @@ async function generateServerCodeWithLLM(
   actions: DiscoveredAction[],
   serviceName: string
 ): Promise<string> {
-  //todo: this should be able to work with any provider, not just gemini
-  const gemini = new GoogleGenerativeAI(
-    process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY!
-  );
-  const model = gemini.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const model = getModel();
 
   const prompt = await generateMCPServerCodePrompt(
     actions,
@@ -68,9 +70,14 @@ async function generateServerCodeWithLLM(
     url
   );
 
-  const response = await model.generateContent(prompt);
-  let generatedCode = response.response.text();
+  const { text } = await generateText({
+    model,
+    prompt,
+  });
 
+  let generatedCode = text;
+
+  // Clean up markdown code blocks if present
   generatedCode = generatedCode
     .replace(/^```typescript\s*/i, "")
     .replace(/^```\s*/, "");
@@ -89,15 +96,7 @@ export async function fixBuildErrors(
   actions: DiscoveredAction[],
   outputDir: string
 ): Promise<string> {
-  const apiKey =
-    process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY!;
-
-  if (!apiKey) {
-    throw new Error("modelApiKey environment variable is required");
-  }
-  // todo: use the same underlying model as the one used in the Stagehand instance
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const model = getModel();
 
   const prompt = await generateFixBuildErrorsPrompt(
     originalCode,
@@ -105,23 +104,25 @@ export async function fixBuildErrors(
     actions
   );
 
-  const result = await model.generateContent(prompt);
-  const response = result.response.text();
+  const { text } = await generateText({
+    model,
+    prompt,
+  });
 
   // Extract code from markdown code blocks if present
-  const codeBlockMatch = response.match(/```typescript\n([\s\S]*?)\n```/);
+  const codeBlockMatch = text.match(/```typescript\n([\s\S]*?)\n```/);
   if (codeBlockMatch) {
     return codeBlockMatch[1];
   }
 
   // If no code block, try to find code starting with #!/usr/bin/env node
-  const shebangMatch = response.match(/(#!\/usr\/bin\/env node[\s\S]*)/);
+  const shebangMatch = text.match(/(#!\/usr\/bin\/env node[\s\S]*)/);
   if (shebangMatch) {
     return shebangMatch[1];
   }
 
   // Write the fixed code
-  await fs.writeFile(path.join(outputDir, "src", "index.ts"), response);
+  await fs.writeFile(path.join(outputDir, "src", "index.ts"), text);
 
-  return response;
+  return text;
 }

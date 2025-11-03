@@ -184,10 +184,8 @@ async function initStagehand(): Promise<Stagehand> {
           : undefined,
       },
       model: {
-        modelName: "google/gemini-2.5-flash",
-        apiKey:
-          process.env.GEMINI_API_KEY ??
-          process.env.GOOGLE_GENERATIVE_AI_API_KEY!,
+        modelName: process.env.MODEL_PROVIDER || "google/gemini-2.5-flash",
+        apiKey: process.env.MODEL_API_KEY!,
       },
     });
     await stagehand.init();

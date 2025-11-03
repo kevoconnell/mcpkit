@@ -3,6 +3,7 @@ import {
   listSavedContexts,
   deleteContextId,
   loadContextId,
+  createContext,
 } from "../../services/session/index.js";
 import chalk from "chalk";
 
@@ -76,7 +77,9 @@ export async function deleteContext(domain?: string): Promise<void> {
 
   await deleteContextId(domain);
   console.log(
-    chalk.green(`\n✅ Context for ${chalk.cyan(domain)} deleted successfully.\n`)
+    chalk.green(
+      `\n✅ Context for ${chalk.cyan(domain)} deleted successfully.\n`
+    )
   );
   console.log(
     "Note: The next time you run 'mcpkit create' for this domain, a new context will be created and you'll need to log in again."
@@ -117,15 +120,29 @@ export async function showContext(domain?: string): Promise<void> {
 
   if (!contextId) {
     console.log(
-      chalk.red(
-        `\n❌ No context found for domain: ${chalk.cyan(domain)}\n`
-      )
+      chalk.red(`\n❌ No context found for domain: ${chalk.cyan(domain)}\n`)
     );
     return;
   }
 
   console.log(chalk.bold(`\n📦 Context for ${chalk.cyan(domain)}:\n`));
   console.log(`Domain:     ${chalk.cyan(domain)}`);
+  console.log(`Context ID: ${chalk.gray(contextId)}`);
+  console.log(
+    `\nThis context stores browser state (cookies, localStorage, etc.) for ${domain}.`
+  );
+  console.log(
+    "It allows you to stay logged in across multiple mcpkit sessions.\n"
+  );
+}
+
+export async function createContextForDomain(domain: string): Promise<void> {
+  const contextId = await createContext(domain);
+  console.log(
+    chalk.green(
+      `\n✅ Context for ${chalk.cyan(domain)} created successfully.\n`
+    )
+  );
   console.log(`Context ID: ${chalk.gray(contextId)}`);
   console.log(
     `\nThis context stores browser state (cookies, localStorage, etc.) for ${domain}.`
@@ -147,6 +164,14 @@ export async function manageContexts(
       await listContexts();
       break;
 
+    case "create":
+      if (!domain) {
+        console.log(chalk.red("\nDomain is required.\n"));
+        return;
+      }
+      await createContextForDomain(domain);
+      break;
+
     case "delete":
       await deleteContext(domain);
       break;
@@ -163,6 +188,7 @@ export async function manageContexts(
         message: "What would you like to do?",
         choices: [
           { title: "List all contexts", value: "list" },
+          { title: "Create a new context", value: "create" },
           { title: "Show context details", value: "show" },
           { title: "Delete a context", value: "delete" },
           { title: "Cancel", value: "cancel" },

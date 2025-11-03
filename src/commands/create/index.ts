@@ -169,8 +169,8 @@ export async function createMCPServer(
 
   console.log(`Next steps:`);
   console.log(`  cd ${repoName}`);
-  console.log(`  cp .env.example .env`);
-  console.log(`  # Add your API keys to .env`);
   console.log(`  npm start`);
-  console.log(`\n💡 The server has been built and is ready to use!`);
+  console.log(`\n💡 The server has been built with your global secrets and is ready to use!`);
+  console.log(`\nTo add this MCP server to Claude Code:`);
+  console.log(`  claude mcp add --transport stdio ${serviceName} -- node ${path.join(process.cwd(), repoName)}/dist/index.js`);
 }

@@ -1,5 +1,8 @@
 import { Stagehand } from "@browserbasehq/stagehand";
-import { DiscoveredAction, DiscoveredActionsResponseSchema } from "../schemas/index.js";
+import {
+  DiscoveredAction,
+  DiscoveredActionsResponseSchema,
+} from "../schemas/index.js";
 
 /**
  * Discover available actions on the website
@@ -14,8 +17,21 @@ export async function discoverActions(
     {
       actions: [
         {
-          name: "search_documentation",
-          description: "Search the documentation for a specific query",
+          name: "get_page_info",
+          description:
+            "Get information about the current page including title, main content summary, and available actions",
+          parameters: [],
+          steps: [],
+          extractionSchema: {
+            pageTitle: "string - the title of the current page",
+            summary: "string - brief summary of the main content",
+            availableActions:
+              "array of strings - list of key actions visible on the page",
+          },
+        },
+        {
+          name: "search_content",
+          description: "Search for content on the website",
           parameters: [
             {
               name: "query",
@@ -30,12 +46,38 @@ export async function discoverActions(
             "Press enter or click search button",
           ],
           extractionSchema: {
-            results: "array of search result objects with title and url",
+            results:
+              "array of search result objects with title, url, and optional description",
           },
         },
         {
+          name: "create_new_item",
+          description:
+            "Create a new item (post, page, document, etc.) with title and content",
+          parameters: [
+            {
+              name: "title",
+              type: "string",
+              description: "The title of the new item",
+              required: true,
+            },
+            {
+              name: "content",
+              type: "string",
+              description: "The main content or body text",
+              required: false,
+            },
+          ],
+          steps: [
+            "Click on the 'New' or 'Create' button",
+            "Type {title} into the title field",
+            "Type {content} into the content/body field",
+            "Click save or publish button",
+          ],
+        },
+        {
           name: "navigate_to_section",
-          description: "Navigate to a specific section of the documentation",
+          description: "Navigate to a specific section of the website",
           parameters: [
             {
               name: "sectionName",
@@ -60,43 +102,85 @@ export async function discoverActions(
     console.log("🤖 Initializing AI agent for website exploration...");
 
     const agent = stagehand.agent({
-      model: {
-        modelName: "google/gemini-2.5-flash",
-        apiKey:
-          process.env.GEMINI_API_KEY ??
-          process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-      },
-      systemPrompt: `You are a web automation analyst. Your job is to explore this ENTIRE website and identify the most useful actions a user might want to automate.
+      systemPrompt: `You are a meticulous web automation analyst. Your job is to DEEPLY explore this ENTIRE website and identify the most useful actions a user might want to automate.
 
-EXPLORATION STRATEGY:
-1. Navigate through the main sections of the website
-2. Click on navigation links, menus, and key areas
-3. Identify patterns and common workflows
-4. Focus on CRUD operations (Create, Read, Update, Delete) and data retrieval
+EXPLORATION STRATEGY - TAKE YOUR TIME AND BE THOROUGH:
+1. Start at the homepage and methodically explore EVERY major section
+2. Click through ALL navigation links, menus, dropdowns, and buttons
+3. Look for hidden features (settings, profile menus, admin sections, modals, etc.)
+4. Test different user flows and explore nested navigation
+5. Identify MULTI-STEP workflows (e.g., create → edit → publish, search → filter → select → interact)
+6. Document CRUD operations (Create, Read, Update, Delete) in detail
+7. Note data retrieval patterns and what information can be extracted
+8. Explore 2-3 levels deep into the site structure, not just surface pages
+9. Spend time understanding the site's full capabilities before finalizing your list
+
+DO NOT RUSH - Use your available steps to thoroughly understand the website. Quality over speed.
 
 CRITICAL: You MUST respond with ONLY valid JSON in this EXACT format, with no additional text:
 
 ${exampleJSON}
+
+IMPORTANT REQUIREMENTS:
+- ALWAYS include a "get_page_info" action as the FIRST action (with empty parameters and steps arrays)
+- Focus on MULTI-STEP workflows that combine multiple UI interactions
+- Each action should have 4-8 steps minimum (not just 1-2 steps)
+- Break down complex workflows into detailed, atomic steps
+- Explore deeper sections of the site, not just surface-level features
+- Look for advanced features that power users would want automated
+- Don't stop at the first page - navigate through and explore thoroughly
 
 RULES:
 - Return ONLY the JSON object, nothing else
 - Each action MUST have: name (snake_case), description, parameters (array), steps (array)
 - parameters: REQUIRED field, array of parameter objects with name, type, description, required
   - Include parameters for ANY action that needs user input (search query, item name, etc.)
-  - Use empty array [] only if action truly needs no input
+  - Use empty array [] only for "get_page_info" action
 - steps: Use {parameterName} placeholder syntax in steps where parameters should be inserted
   - Example: "Type {query} into search field" or "Click on {sectionName} link"
-  - This allows the generated code to interpolate the actual parameter values
-- extractionSchema: optional but recommended for data retrieval actions
-- Focus on 5-10 most useful and realistic actions
-- Make sure steps are specific and actionable`,
+  - Break workflows into detailed steps (click button, wait for dialog, type text, select options, click save, etc.)
+  - Each step should be a single, atomic UI interaction
+  - Include 4-8 steps per action for thorough coverage
+- extractionSchema: REQUIRED for data retrieval actions, optional for create/update actions
+- Focus on 7-12 most useful and realistic actions (including get_page_info)
+- Make sure steps are specific, detailed, and actionable
+
+EXAMPLE MULTI-STEP WORKFLOWS:
+- Create & publish: Click create button → Wait for form → Type title → Type content → Select category → Add tags → Click publish → Confirm publication
+- Advanced search: Click search → Type query → Press enter → Wait for results → Click filter dropdown → Select filter option → Apply filter → Extract results
+- Edit & save: Navigate to item → Wait for load → Click edit button → Modify title → Modify content → Update settings → Click save → Wait for confirmation
+- Complex interaction: Find item → Click item → Wait for details → Click action button → Fill form fields → Select options → Submit → Verify success
+
+REMEMBER: You have 200 steps available. Use them to explore thoroughly. Click through all sections, test different paths, and take your time to understand the full scope of what users can do on this site.`,
     });
 
     console.log("🔍 Agent exploring website (this may take a minute)...");
 
     result = await agent.execute({
-      instruction: `Explore this ENTIRE website thoroughly. Navigate through different pages, sections, and features. Identify the top 5-10 most useful actions a user might want to automate. Focus on CRUD operations and data retrieval. Return ONLY the JSON object, no additional text.`,
-      maxSteps: 20,
+      instruction: `TAKE YOUR TIME and DEEPLY explore this ENTIRE website. You have 200 steps - use them wisely to understand the full scope of this site.
+
+EXPLORATION APPROACH:
+1. Start at the homepage and click through ALL major navigation sections
+2. Explore 2-3 levels deep - don't just stay on surface pages
+3. Look for hidden features (user menus, settings, admin sections, modals)
+4. Test different user flows and nested navigation paths
+5. Identify complete, multi-step workflows that users would want automated
+
+FIRST: Include "get_page_info" action with empty parameters and steps arrays.
+
+THEN: Identify 7-12 most useful MULTI-STEP actions that users would want to automate. Focus on:
+- Complete workflows (create → edit → publish, search → filter → select → interact)
+- CRUD operations with detailed, atomic steps
+- Data retrieval with comprehensive extraction schemas
+- Real user workflows that combine multiple interactions
+- Advanced features that power users would want automated
+
+Each action should have 4-8 detailed steps minimum. Break down the workflow into atomic UI interactions.
+
+DO NOT RUSH. Quality and thoroughness over speed. Explore deeply before finalizing your list.
+
+Return ONLY the JSON object, no additional text.`,
+      maxSteps: 200,
     });
 
     if (!result || typeof result !== "object") {
